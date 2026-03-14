@@ -1,49 +1,87 @@
-// index.js
-const defaultAvatarUrl = 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0'
+const { get } = require('../../utils/request')
 
 Page({
   data: {
-    motto: 'Hello World',
-    userInfo: {
-      avatarUrl: defaultAvatarUrl,
-      nickName: '',
-    },
-    hasUserInfo: false,
-    canIUseGetUserProfile: wx.canIUse('getUserProfile'),
-    canIUseNicknameComp: wx.canIUse('input.type.nickname'),
+    keyword: '',
+    categoryId: null,
+    type: null,
+    items: [],
+    categories: [],
+    loading: true,
+    page: 0,
+    size: 10,
+    hasMore: true,
+    showFilter: false
   },
-  bindViewTap() {
-    wx.navigateTo({
-      url: '../logs/logs'
-    })
+
+  onLoad() {
+    this.loadCategories()
+    this.loadItems(true)
   },
-  onChooseAvatar(e) {
-    const { avatarUrl } = e.detail
-    const { nickName } = this.data.userInfo
-    this.setData({
-      "userInfo.avatarUrl": avatarUrl,
-      hasUserInfo: nickName && avatarUrl && avatarUrl !== defaultAvatarUrl,
-    })
+
+  onShow() {
+    this.loadItems(true)
   },
-  onInputChange(e) {
-    const nickName = e.detail.value
-    const { avatarUrl } = this.data.userInfo
-    this.setData({
-      "userInfo.nickName": nickName,
-      hasUserInfo: nickName && avatarUrl && avatarUrl !== defaultAvatarUrl,
-    })
+
+  loadCategories() {
+    get('/api/categories').then(res => {
+      this.setData({ categories: res.data || [] })
+    }).catch(() => {})
   },
-  getUserProfile(e) {
-    // 推荐使用wx.getUserProfile获取用户信息，开发者每次通过该接口获取用户个人信息均需用户确认，开发者妥善保管用户快速填写的头像昵称，避免重复弹窗
-    wx.getUserProfile({
-      desc: '展示用户信息', // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
-      success: (res) => {
-        console.log(res)
-        this.setData({
-          userInfo: res.userInfo,
-          hasUserInfo: true
-        })
-      }
-    })
+
+  loadItems(refresh) {
+    if (refresh) {
+      this.setData({ page: 0, hasMore: true })
+    }
+    if (!this.data.hasMore && !refresh) return
+    const { keyword, categoryId, type, page, size } = this.data
+    const params = { page: refresh ? 0 : page, size }
+    if (keyword) params.keyword = keyword
+    if (categoryId) params.categoryId = categoryId
+    if (type != null) params.type = type
+
+    this.setData({ loading: true })
+    get('/api/items', params).then(res => {
+      const list = res.data?.content || []
+      const prev = refresh ? [] : this.data.items
+      this.setData({
+        items: [...prev, ...list],
+        page: (res.data?.page || 0) + 1,
+        hasMore: (res.data?.content?.length || 0) >= size,
+        loading: false
+      })
+    }).catch(() => this.setData({ loading: false }))
   },
+
+  onKeywordInput(e) {
+    this.setData({ keyword: e.detail.value })
+  },
+  onSearch() {
+    this.loadItems(true)
+  },
+
+  onFilterCategory(e) {
+    const id = e.currentTarget.dataset.id
+    this.setData({ categoryId: id || null, showFilter: false })
+    this.loadItems(true)
+  },
+
+  onFilterType(e) {
+    const type = e.currentTarget.dataset.type
+    this.setData({ type: type !== undefined ? type : null })
+    this.loadItems(true)
+  },
+
+  toggleFilter() {
+    this.setData({ showFilter: !this.data.showFilter })
+  },
+
+  toDetail(e) {
+    const id = e.currentTarget.dataset.id
+    wx.navigateTo({ url: `/pages/item-detail/item-detail?id=${id}` })
+  },
+
+  onReachBottom() {
+    this.loadItems(false)
+  }
 })

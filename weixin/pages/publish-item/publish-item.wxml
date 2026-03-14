@@ -1,0 +1,37 @@
+<view class="container">
+  <view class="form-card">
+    <view class="form-item">
+      <text class="label">分类</text>
+      <picker mode="selector" range="{{categories}}" range-key="name" value="{{categoryIndex}}" bindchange="onCategoryChange">
+        <view class="picker">{{categories[categoryIndex] ? categories[categoryIndex].name : '请选择'}}</view>
+      </picker>
+    </view>
+    <view class="form-item">
+      <text class="label">物品名称</text>
+      <input placeholder="请输入" value="{{title}}" bindinput="onTitleInput"/>
+    </view>
+    <view class="form-item">
+      <text class="label">地点</text>
+      <input placeholder="丢失/拾取地点" value="{{location}}" bindinput="onLocationInput"/>
+    </view>
+    <view class="form-item">
+      <text class="label">详细描述</text>
+      <textarea placeholder="详细描述" value="{{description}}" bindinput="onDescInput"/>
+    </view>
+    <view class="form-item">
+      <text class="label">联系方式</text>
+      <input placeholder="手机/微信" value="{{contact}}" bindinput="onContactInput"/>
+    </view>
+    <view class="form-item">
+      <text class="label">图片</text>
+      <view class="img-list">
+        <view class="img-item" wx:for="{{images}}" wx:key="*this">
+          <image src="{{item}}" mode="aspectFill" bindtap="removeImage" data-idx="{{index}}"/>
+          <view class="img-remove" bindtap="removeImage" data-idx="{{index}}">×</view>
+        </view>
+        <view class="img-add" wx:if="{{images.length < 9}}" bindtap="chooseImage">+</view>
+      </view>
+    </view>
+    <button class="btn-submit" bindtap="submit">发布</button>
+  </view>
+</view>

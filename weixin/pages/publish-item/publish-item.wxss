@@ -1,0 +1,77 @@
+.form-card {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 32rpx;
+}
+
+.form-item {
+  margin-bottom: 32rpx;
+}
+
+.label {
+  display: block;
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+}
+
+.form-item input, .form-item textarea, .picker {
+  width: 100%;
+  padding: 24rpx;
+  background: #f5f6fa;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+}
+
+.form-item textarea {
+  min-height: 160rpx;
+}
+
+.img-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.img-item {
+  position: relative;
+}
+
+.img-item image {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 12rpx;
+}
+
+.img-remove {
+  position: absolute;
+  top: -10rpx;
+  right: -10rpx;
+  width: 40rpx;
+  height: 40rpx;
+  background: #ed6a0c;
+  color: #fff;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 40rpx;
+  font-size: 28rpx;
+}
+
+.img-add {
+  width: 160rpx;
+  height: 160rpx;
+  border: 2rpx dashed #ddd;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48rpx;
+  color: #999;
+}
+
+.btn-submit {
+  margin-top: 48rpx;
+  background: #1989fa;
+  color: #fff;
+  border-radius: 16rpx;
+}

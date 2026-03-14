@@ -1,0 +1,14 @@
+<view class="container">
+  <view class="conv-item flex-between" wx:for="{{conversations}}" wx:key="otherUserId" data-id="{{item.otherUserId}}" bindtap="toChat">
+    <image class="conv-avatar" src="{{item.otherUserAvatarUrl || '/assets/icons/user.png'}}" mode="aspectFill"/>
+    <view class="conv-content">
+      <view class="conv-name">{{item.otherUserNickname || '用户'}}</view>
+      <view class="conv-msg text-gray">{{item.lastMessage}}</view>
+    </view>
+    <view class="conv-right">
+      <view class="conv-time text-gray">{{item.lastMessageTime}}</view>
+      <view class="unread-badge" wx:if="{{item.unreadCount > 0}}">{{item.unreadCount}}</view>
+    </view>
+  </view>
+  <view class="empty-tip" wx:if="{{conversations.length === 0}}">暂无消息</view>
+</view>

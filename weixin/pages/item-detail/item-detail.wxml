@@ -1,0 +1,46 @@
+<view class="container" wx:if="{{item}}">
+  <view class="detail-card">
+    <swiper class="swiper" indicator-dots="{{item.images && item.images.length > 1}}">
+      <swiper-item wx:for="{{item.images || []}}" wx:key="*this">
+        <image src="{{item}}" mode="aspectFill"/>
+      </swiper-item>
+      <swiper-item wx:if="{{!item.images || item.images.length === 0}}">
+        <view class="placeholder-img">暂无图片</view>
+      </swiper-item>
+    </swiper>
+    <view class="detail-body">
+      <view class="detail-title">{{item.title}}</view>
+      <view class="detail-meta">
+        <text class="tag {{item.type === 0 ? 'lost' : 'found'}}">{{item.type === 0 ? '失物' : '招领'}}</text>
+        <text>{{item.categoryName}} · {{item.location || '未知'}}</text>
+      </view>
+      <view class="detail-desc">{{item.description || '暂无描述'}}</view>
+      <view class="detail-time text-gray">时间: {{item.eventTime || item.createdAt}}</view>
+      <view class="detail-contact text-primary" wx:if="{{item.contact}}">联系方式: {{item.contact}}</view>
+      <view class="publisher flex-between">
+        <view class="flex">
+          <image class="pub-avatar" src="{{item.userAvatarUrl || '/assets/icons/user.png'}}" mode="aspectFill"/>
+          <view>{{item.userNickname}}</view>
+        </view>
+        <button class="btn-contact" bindtap="toChat">联系TA</button>
+      </view>
+    </view>
+  </view>
+  <view class="comment-section">
+    <view class="comment-title">留言 ({{comments.length}})</view>
+    <view class="comment-input-bar flex">
+      <input class="comment-input" placeholder="发表留言..." value="{{commentContent}}" bindinput="onCommentInput"/>
+      <button class="btn-comment" bindtap="submitComment">发送</button>
+    </view>
+    <view class="comment-list">
+      <view class="comment-item" wx:for="{{comments}}" wx:key="id">
+        <image class="comment-avatar" src="{{item.userAvatarUrl || '/assets/icons/user.png'}}" mode="aspectFill"/>
+        <view class="comment-content">
+          <view class="comment-name">{{item.userNickname}}</view>
+          <view class="comment-text">{{item.content}}</view>
+          <view class="comment-time text-gray">{{item.createdAt}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

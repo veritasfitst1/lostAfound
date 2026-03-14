@@ -1,0 +1,44 @@
+.item-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+}
+
+.item-img {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 12rpx;
+  margin-right: 24rpx;
+}
+
+.item-info {
+  flex: 1;
+}
+
+.item-title {
+  font-size: 30rpx;
+  font-weight: 500;
+}
+
+.item-meta {
+  font-size: 24rpx;
+  margin-top: 8rpx;
+}
+
+.status { font-size: 24rpx; margin-top: 8rpx; }
+.status-0 { color: #1989fa; }
+.status-1 { color: #07c160; }
+.status-2 { color: #999; }
+.status-3 { color: #ed6a0c; }
+
+.btn-revoke {
+  padding: 16rpx 32rpx;
+  font-size: 26rpx;
+  color: #ed6a0c;
+  background: #fff3f0;
+  border-radius: 16rpx;
+}

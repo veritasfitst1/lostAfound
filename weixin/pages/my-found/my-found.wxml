@@ -1,0 +1,14 @@
+<view class="container">
+  <view class="item-card" wx:for="{{items}}" wx:key="id">
+    <view class="item-main flex" data-id="{{item.id}}" bindtap="toDetail">
+      <image class="item-img" src="{{item.images && item.images[0] || '/assets/icons/home.png'}}" mode="aspectFill"/>
+      <view class="item-info">
+        <view class="item-title">{{item.title}}</view>
+        <view class="item-meta text-muted">{{item.categoryName}} · {{item.location || '-'}}</view>
+        <view class="status status-{{item.status}}">{{item.status === 0 ? '寻找中' : item.status === 1 ? '已找回' : item.status === 2 ? '已撤销' : '已过期'}}</view>
+      </view>
+    </view>
+    <button class="btn-revoke" wx:if="{{item.status === 0}}" data-id="{{item.id}}" bindtap="onRevoke">撤销</button>
+  </view>
+  <view class="empty-tip" wx:if="{{items.length === 0}}">暂无招领发布</view>
+</view>

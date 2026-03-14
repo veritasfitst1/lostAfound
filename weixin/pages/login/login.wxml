@@ -1,0 +1,6 @@
+<view class="container flex-center" style="flex-direction: column;">
+  <view class="logo">🔍</view>
+  <view class="title">校园失物招领</view>
+  <view class="subtitle">找遗失、发招领，互帮互助</view>
+  <button class="btn-login" bindtap="onLogin">微信一键登录</button>
+</view>

@@ -1,0 +1,12 @@
+<view class="container">
+  <scroll-view scroll-y class="msg-list" scroll-into-view="msg-{{messages.length - 1}}">
+    <view class="msg-item {{item.senderId === otherUserId ? 'left' : 'right'}}" id="msg-{{index}}" wx:for="{{messages}}" wx:key="id">
+      <image class="msg-avatar" src="{{item.senderId === otherUserId ? '/assets/icons/user.png' : '/assets/icons/user.png'}}" mode="aspectFill"/>
+      <view class="msg-bubble">{{item.content}}</view>
+    </view>
+  </scroll-view>
+  <view class="input-bar flex">
+    <input class="input" placeholder="输入消息" value="{{inputContent}}" bindinput="onInput" bindconfirm="send"/>
+    <button class="btn-send" bindtap="send">发送</button>
+  </view>
+</view>

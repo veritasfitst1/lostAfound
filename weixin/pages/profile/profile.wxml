@@ -1,0 +1,20 @@
+<view class="container">
+  <view class="user-card">
+    <image class="avatar" src="{{user.avatarUrl || '/assets/icons/user.png'}}" mode="aspectFill"/>
+    <view class="user-info">
+      <view class="nickname" bindtap="onEditNickname">{{user.nickname || '微信用户'}}</view>
+      <view class="user-id text-gray">ID: {{user.id}}</view>
+    </view>
+  </view>
+  <view class="menu-section">
+    <view class="menu-item flex-between" bindtap="toMyLost">
+      <text>我的失物发布</text>
+      <text class="arrow">›</text>
+    </view>
+    <view class="menu-item flex-between" bindtap="toMyFound">
+      <text>我的招领发布</text>
+      <text class="arrow">›</text>
+    </view>
+  </view>
+  <view class="logout-btn" bindtap="onLogout">退出登录</view>
+</view>

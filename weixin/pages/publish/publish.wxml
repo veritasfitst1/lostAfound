@@ -1,0 +1,17 @@
+<view class="container">
+  <view class="card" bindtap="toPublishLost">
+    <view class="card-icon">📤</view>
+    <view class="card-title">发布失物信息</view>
+    <view class="card-desc">我丢了东西，帮忙找找</view>
+  </view>
+  <view class="card" bindtap="toPublishFound">
+    <view class="card-icon">📥</view>
+    <view class="card-title">发布招领信息</view>
+    <view class="card-desc">我捡到东西，寻找失主</view>
+  </view>
+  <view class="card card-secondary" bindtap="toRevoke">
+    <view class="card-icon">↩️</view>
+    <view class="card-title">撤销信息</view>
+    <view class="card-desc">撤销已发布的失物/招领信息</view>
+  </view>
+</view>

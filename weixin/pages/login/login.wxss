@@ -1,0 +1,33 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #1989fa 0%, #5cadff 100%);
+  padding: 80rpx 48rpx;
+}
+
+.logo {
+  font-size: 120rpx;
+  margin-bottom: 48rpx;
+}
+
+.title {
+  font-size: 44rpx;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 16rpx;
+}
+
+.subtitle {
+  font-size: 28rpx;
+  color: rgba(255,255,255,0.9);
+  margin-bottom: 80rpx;
+}
+
+.btn-login {
+  width: 100%;
+  background: #fff;
+  color: #1989fa;
+  border-radius: 48rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  padding: 28rpx;
+}

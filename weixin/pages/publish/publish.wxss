@@ -1,0 +1,28 @@
+.card {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 48rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.06);
+}
+
+.card-icon {
+  font-size: 64rpx;
+  margin-bottom: 24rpx;
+}
+
+.card-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12rpx;
+}
+
+.card-desc {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.card-secondary {
+  background: #f8f9fa;
+}
