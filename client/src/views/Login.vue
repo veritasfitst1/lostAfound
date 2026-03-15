@@ -39,11 +39,23 @@ const handleLogin = async () => {
   }
   loading.value = true
   try {
+    // #region agent log
+    fetch('http://127.0.0.1:7452/ingest/49c51c8e-b700-498f-abd5-e19a65322b20',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'5795f3'},body:JSON.stringify({sessionId:'5795f3',hypothesisId:'A,B',location:'Login.vue:handleLogin',message:'before adminLogin',data:{username:form.username},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     const res = await adminLogin(form)
+    // #region agent log
+    fetch('http://127.0.0.1:7452/ingest/49c51c8e-b700-498f-abd5-e19a65322b20',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'5795f3'},body:JSON.stringify({sessionId:'5795f3',hypothesisId:'B',location:'Login.vue:handleLogin',message:'adminLogin success',data:{res:JSON.stringify(res)},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     userStore.setAuth(res.data)
+    // #region agent log
+    fetch('http://127.0.0.1:7452/ingest/49c51c8e-b700-498f-abd5-e19a65322b20',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'5795f3'},body:JSON.stringify({sessionId:'5795f3',hypothesisId:'D',location:'Login.vue:handleLogin',message:'after setAuth, pushing to /',data:{isLoggedIn:userStore.isLoggedIn(),token:!!userStore.token},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     ElMessage.success('登录成功')
     router.push('/')
   } catch (e) {
+    // #region agent log
+    fetch('http://127.0.0.1:7452/ingest/49c51c8e-b700-498f-abd5-e19a65322b20',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'5795f3'},body:JSON.stringify({sessionId:'5795f3',hypothesisId:'A',location:'Login.vue:handleLogin:catch',message:'login error',data:{error:String(e),type:typeof e},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     ElMessage.error(e || '登录失败')
   } finally {
     loading.value = false

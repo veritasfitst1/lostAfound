@@ -1,6 +1,7 @@
 -- 校园失物招领系统 - 测试数据 (MySQL 8.0)
 
 SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
 
 -- ----------------------------
 -- 用户数据 (密码 admin123 的 BCrypt 哈希)
@@ -55,3 +56,5 @@ INSERT INTO `item_comment` (`item_id`, `user_id`, `content`) VALUES
 -- ----------------------------
 INSERT INTO `report` (`reporter_id`, `reported_item_id`, `reason`, `status`) VALUES
 (2, 2, '该物品描述不实，可能是虚假信息', 0);
+
+SET FOREIGN_KEY_CHECKS = 1;

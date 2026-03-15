@@ -9,6 +9,8 @@ import com.example.server.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 
 @Service
 @RequiredArgsConstructor
@@ -45,23 +47,41 @@ public class AuthService {
     }
 
     public AuthResponse adminLogin(String username, String password) {
+        // #region agent log
+        debugLog("{\"sessionId\":\"5795f3\",\"hypothesisId\":\"A\",\"location\":\"AuthService.adminLogin\",\"message\":\"adminLogin called\",\"data\":{\"username\":\"" + username + "\"},\"timestamp\":" + System.currentTimeMillis() + "}");
+        // #endregion
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BusinessException(401, "用户名或密码错误"));
+        // #region agent log
+        boolean pwMatch = passwordEncoder.matches(password, user.getPassword());
+        debugLog("{\"sessionId\":\"5795f3\",\"hypothesisId\":\"A\",\"location\":\"AuthService.adminLogin\",\"message\":\"password check\",\"data\":{\"role\":\"" + user.getRole() + "\",\"status\":" + user.getStatus() + ",\"pwMatch\":" + pwMatch + ",\"storedHash\":\"" + (user.getPassword() != null ? user.getPassword().substring(0, 10) : "null") + "...\"},\"timestamp\":" + System.currentTimeMillis() + "}");
+        // #endregion
         if (!"ADMIN".equals(user.getRole())) {
             throw new BusinessException(403, "非管理员账号");
         }
-        if (!passwordEncoder.matches(password, user.getPassword())) {
+        if (!pwMatch) {
             throw new BusinessException(401, "用户名或密码错误");
         }
         if (user.getStatus() == 1) {
             throw new BusinessException(403, "账号已被封禁");
         }
         String token = jwtUtil.generateToken(user.getId(), user.getRole());
+        // #region agent log
+        debugLog("{\"sessionId\":\"5795f3\",\"hypothesisId\":\"B\",\"location\":\"AuthService.adminLogin\",\"message\":\"login success\",\"data\":{\"tokenLen\":" + token.length() + "},\"timestamp\":" + System.currentTimeMillis() + "}");
+        // #endregion
         return AuthResponse.builder()
                 .token(token)
                 .user(toUserVO(user))
                 .build();
     }
+
+    // #region agent log
+    private void debugLog(String json) {
+        try (PrintWriter pw = new PrintWriter(new FileWriter("../debug-5795f3.log", true))) {
+            pw.println(json);
+        } catch (Exception ignored) {}
+    }
+    // #endregion
 
     private UserVO toUserVO(User user) {
         return UserVO.builder()
