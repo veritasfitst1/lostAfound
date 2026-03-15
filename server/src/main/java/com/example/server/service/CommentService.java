@@ -29,6 +29,7 @@ public class CommentService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public CommentVO create(Long userId, Long itemId, String content) {
         User user = userService.findById(userId);
         Item item = itemRepository.findById(itemId)

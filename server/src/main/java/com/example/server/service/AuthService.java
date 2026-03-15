@@ -21,6 +21,9 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     public AuthResponse wxLogin(String openid, String nickname, String avatarUrl) {
+        // #region agent log
+        debugLog("{\"sessionId\":\"5795f3\",\"hypothesisId\":\"WX\",\"location\":\"AuthService.wxLogin\",\"message\":\"wxLogin called\",\"data\":{\"openid\":\"" + openid + "\",\"nickname\":\"" + nickname + "\"},\"timestamp\":" + System.currentTimeMillis() + "}");
+        // #endregion
         User user = userRepository.findByOpenid(openid)
                 .orElseGet(() -> {
                     User u = User.builder()

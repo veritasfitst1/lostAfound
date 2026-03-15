@@ -125,6 +125,7 @@ public class ItemService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void delete(Long itemId, Long operatorId, boolean isAdmin) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new BusinessException(404, "物品不存在"));
