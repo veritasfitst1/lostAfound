@@ -14,6 +14,7 @@ public class ServerApplication {
         SpringApplication.run(ServerApplication.class, args);
     }
 
+    //启动后执行，防止管理员密码在测试时被改登不上去
     @Bean
     CommandLineRunner fixAdminPassword(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> userRepository.findByUsername("admin").ifPresent(admin -> {

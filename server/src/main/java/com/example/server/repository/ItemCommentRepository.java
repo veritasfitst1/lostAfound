@@ -4,7 +4,7 @@ import com.example.server.entity.ItemComment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-
+//
 public interface ItemCommentRepository extends JpaRepository<ItemComment, Long> {
 
     List<ItemComment> findByItemIdOrderByCreatedAtAsc(Long itemId);

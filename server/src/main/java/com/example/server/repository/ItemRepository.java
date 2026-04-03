@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface ItemRepository extends JpaRepository<Item, Long>, JpaSpecificationExecutor<Item> {
-
+    //根据发布的用户和信息类别查询
     List<Item> findByUserIdAndTypeOrderByCreatedAtDesc(Long userId, Integer type);
 
     @Query("SELECT i FROM Item i WHERE i.status = 0 AND (LOWER(i.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(i.description) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(i.location) LIKE LOWER(CONCAT('%', :keyword, '%')))")
@@ -19,8 +19,8 @@ public interface ItemRepository extends JpaRepository<Item, Long>, JpaSpecificat
 
     @Query("SELECT i FROM Item i WHERE i.status = 0")
     Page<Item> findAllActive(Pageable pageable);
-
+    //根据状态统计数目
     long countByStatus(Integer status);
-
+    //根据类型统计数目
     long countByType(Integer type);
 }
