@@ -7,7 +7,7 @@ spring:
     username: root
     password: password
     driver-class-name: com.mysql.cj.jdbc.Driver
-    hikari:
+    hikari: #连结池
       maximum-pool-size: 10
       minimum-idle: 2
 
@@ -19,11 +19,11 @@ spring:
       hibernate:
         format_sql: true
     open-in-view: false
-
+# 文件上传配置
   servlet:
     multipart:
       enabled: true
-      max-file-size: 10MB
+      max-file-size: 10MB  #单个文件最大10MB
       max-request-size: 10MB
 
   profiles:
@@ -34,15 +34,15 @@ server:
 
 # JWT
 jwt:
-  secret: your-256-bit-secret-key-for-jwt-signing-lost-found-campus
-  expiration-ms: 604800000
+  secret: 8fK2#kD9@aL!xP0qZrT7vW3yH6mN1sBZ    #签名密钥
+  expiration-ms: 604800000         #过期时间ms
 
 # 微信小程序 (占位，需替换为真实值)
 wechat:
   appid: your_appid
   secret: your_secret
 
-# 文件上传
+# 文件上传路径
 upload:
-  path: ./uploads
-  url-prefix: /uploads
+  path: ./uploads   #文件保存位置
+  url-prefix: /uploads  #

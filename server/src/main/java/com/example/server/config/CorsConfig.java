@@ -11,6 +11,7 @@ import java.util.List;
 
 @Configuration
 public class CorsConfig {
+    //跨域资源共享
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

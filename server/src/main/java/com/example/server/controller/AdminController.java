@@ -1,7 +1,10 @@
 package com.example.server.controller;
 
 import com.example.server.dto.*;
+import com.example.server.entity.ItemCategory;
 import com.example.server.service.AdminService;
+import com.example.server.service.ItemCategoryService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +16,7 @@ import java.util.List;
 public class AdminController {
 
     private final AdminService adminService;
+    private final ItemCategoryService itemCategoryService;
 
     @GetMapping("/stats")
     public CommonResponse<AdminStatsVO> stats() {
@@ -41,6 +45,17 @@ public class AdminController {
         return CommonResponse.ok(adminService.listItems(type, status, page, size));
     }
 
+    @PutMapping("/items/{id}")
+    public CommonResponse<ItemVO> updateItem(@PathVariable Long id, @RequestBody java.util.Map<String, String> body) {
+        return CommonResponse.ok(adminService.updateItem(id,
+                body.get("title"), body.get("description"), body.get("location"), body.get("contact")));
+    }
+
+    @PostMapping("/items/{id}/status")
+    public CommonResponse<ItemVO> updateItemStatus(@PathVariable Long id, @RequestParam Integer status) {
+        return CommonResponse.ok(adminService.updateItemStatus(id, status));
+    }
+
     @DeleteMapping("/items/{id}")
     public CommonResponse<Void> deleteItem(@PathVariable Long id) {
         adminService.deleteItem(id);
@@ -53,8 +68,9 @@ public class AdminController {
     }
 
     @GetMapping("/reports")
-    public CommonResponse<List<ReportVO>> reports() {
-        return CommonResponse.ok(adminService.listReports());
+    public CommonResponse<List<ReportVO>> reports(
+            @RequestParam(value = "pendingOnly", defaultValue = "false") boolean pendingOnly) {
+        return CommonResponse.ok(adminService.listReports(pendingOnly));
     }
 
     @PutMapping("/reports/{id}/approve")
@@ -65,5 +81,31 @@ public class AdminController {
     @PutMapping("/reports/{id}/reject")
     public CommonResponse<ReportVO> rejectReport(@PathVariable Long id, @RequestParam(required = false) String note) {
         return CommonResponse.ok(adminService.rejectReport(id, note));
+    }
+
+    @PutMapping("/reports/{id}/revoke")
+    public CommonResponse<ReportVO> revokeReport(@PathVariable Long id) {
+        return CommonResponse.ok(adminService.revokeReport(id));
+    }
+
+    @GetMapping("/categories")
+    public CommonResponse<List<ItemCategory>> listCategories() {
+        return CommonResponse.ok(itemCategoryService.listAll());
+    }
+
+    @PostMapping("/categories")
+    public CommonResponse<ItemCategory> createCategory(@Valid @RequestBody ItemCategoryUpsertRequest req) {
+        return CommonResponse.ok(itemCategoryService.create(req));
+    }
+
+    @PutMapping("/categories/{id}")
+    public CommonResponse<ItemCategory> updateCategory(@PathVariable Long id, @Valid @RequestBody ItemCategoryUpsertRequest req) {
+        return CommonResponse.ok(itemCategoryService.update(id, req));
+    }
+
+    @DeleteMapping("/categories/{id}")
+    public CommonResponse<Void> deleteCategory(@PathVariable Long id) {
+        itemCategoryService.delete(id);
+        return CommonResponse.ok(null);
     }
 }

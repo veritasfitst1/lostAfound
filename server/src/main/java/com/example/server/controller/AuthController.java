@@ -9,8 +9,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+//处理认证逻辑，接收前端信息，进行验证，返回响应信息CommonResponse
 public class AuthController {
-
+    //authservice用来处理认证任务
     private final AuthService authService;
 
     @PostMapping("/wx-login")

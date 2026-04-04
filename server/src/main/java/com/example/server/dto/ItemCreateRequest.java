@@ -9,6 +9,7 @@ import java.util.List;
 
 @Data
 public class ItemCreateRequest {
+    //接收前端的物品信息
 
     @NotNull(message = "分类不能为空")
     private Long categoryId;

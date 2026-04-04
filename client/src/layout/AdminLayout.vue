@@ -1,5 +1,5 @@
 <template>
-  <el-container>
+  <el-container class="layout-root">
     <el-aside width="220px" class="aside">
       <div class="logo">校园失物招领</div>
       <el-menu :default-active="$route.path" router>
@@ -15,6 +15,10 @@
           <el-icon><Document /></el-icon>
           <span>物品管理</span>
         </el-menu-item>
+        <el-menu-item index="/categories">
+          <el-icon><FolderOpened /></el-icon>
+          <span>分类管理</span>
+        </el-menu-item>
         <el-menu-item index="/reports">
           <el-icon><Warning /></el-icon>
           <span>举报审核</span>
@@ -25,7 +29,7 @@
         </el-menu-item>
       </el-menu>
     </el-aside>
-    <el-container>
+    <el-container class="layout-main">
       <el-header class="header">
         <span class="title">{{ $route.meta?.title ?? '管理后台' }}</span>
         <el-dropdown @command="handleLogout">
@@ -51,7 +55,7 @@
 </template>
 
 <script setup>
-import { DataLine, User, Document, Warning, Clock, ArrowDown } from '@element-plus/icons-vue'
+import { DataLine, User, Document, FolderOpened, Warning, Clock, ArrowDown } from '@element-plus/icons-vue'
 import { useUserStore } from '../stores/user'
 import { useRouter } from 'vue-router'
 
@@ -65,6 +69,19 @@ const handleLogout = () => {
 </script>
 
 <style scoped>
+.layout-root {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+.layout-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .aside {
   background: #1d1e1f;
   min-height: 100vh;
@@ -114,8 +131,12 @@ const handleLogout = () => {
 }
 
 .main {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
   background: #f5f6fa;
-  padding: 24px;
+  padding: 20px 24px 24px;
+  box-sizing: border-box;
 }
 
 .fade-enter-active,

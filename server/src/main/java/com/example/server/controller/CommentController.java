@@ -17,11 +17,13 @@ public class CommentController {
 
     private final CommentService commentService;
 
+    //获取评论
     @GetMapping
-    public CommonResponse<List<CommentVO>> list(@PathVariable Long itemId) {
-        return CommonResponse.ok(commentService.listByItemId(itemId));
+    public CommonResponse<List<CommentVO>> list(@RequestAttribute Long userId, @PathVariable Long itemId) {
+        return CommonResponse.ok(commentService.listByItemId(itemId, userId));
     }
 
+    //新增评论
     @PostMapping
     public CommonResponse<CommentVO> create(@RequestAttribute Long userId, @PathVariable Long itemId, @Valid @RequestBody CommentCreateRequest req) {
         return CommonResponse.ok(commentService.create(userId, itemId, req.getContent()));

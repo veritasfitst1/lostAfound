@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentVO {
-
+    //返回给前端的信息集合
     private Long id;
     private Long itemId;
     private Long userId;

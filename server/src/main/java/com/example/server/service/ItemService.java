@@ -30,24 +30,26 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class ItemService {
 
-    private final ItemRepository itemRepository;
-    private final ItemCategoryRepository categoryRepository;
-    private final ItemCommentRepository commentRepository;
-    private final UserService userService;
+    private final ItemRepository itemRepository;  //数据库操作接口
+    private final ItemCategoryRepository categoryRepository;  //数据库操作接口
+    private final ItemCommentRepository commentRepository; //数据库操作接口
+    private final UserService userService;   //处理用户信息
 
-    private static final int TYPE_LOST = 0;
-    private static final int TYPE_FOUND = 1;
-    private static final int STATUS_SEARCHING = 0;
-    private static final int STATUS_FOUND = 1;
-    private static final int STATUS_CANCELLED = 2;
-    private static final int STATUS_EXPIRED = 3;
+    private static final int TYPE_LOST = 0;   //丢失
+    private static final int TYPE_FOUND = 1;  //招领
+    private static final int STATUS_SEARCHING = 0;  //寻找中
+    private static final int STATUS_FOUND = 1;  //已找到
+    private static final int STATUS_CANCELLED = 2;  //取消
+    private static final int STATUS_EXPIRED = 3; //过期
 
+    //创建物品信息
     @Transactional
     public ItemVO create(Long userId, ItemCreateRequest req) {
-        User user = userService.findById(userId);
-        ItemCategory category = categoryRepository.findById(req.getCategoryId())
+        userService.assertNotBanned(userId);
+        User user = userService.findById(userId); //查用户身份
+        ItemCategory category = categoryRepository.findById(req.getCategoryId())   //查分类是否对
                 .orElseThrow(() -> new BusinessException(400, "分类不存在"));
-
+        //没问题就创建物品信息
         Item item = Item.builder()
                 .user(user)
                 .category(category)
@@ -64,16 +66,19 @@ public class ItemService {
         return toItemVO(item, 0);
     }
 
+    //查询功能  根据传的信息筛选
+    //keyword：输入的关键字 type：0丢失 1招领  categoryId：分类id status状态
     public PageResponse<ItemVO> list(String keyword, Long categoryId, Integer type, Integer status, int page, int size) {
         Specification<Item> spec = (root, query, cb) -> {
             List<Predicate> preds = new ArrayList<>();
-            if (status != null) {
+            if (status != null) { //传了状态就按状态查，没有就默认只差寻找中的
                 preds.add(cb.equal(root.get("status"), status));
             } else {
                 preds.add(cb.equal(root.get("status"), STATUS_SEARCHING));
             }
             if (type != null) preds.add(cb.equal(root.get("type"), type));
             if (categoryId != null) preds.add(cb.equal(root.get("category").get("id"), categoryId));
+            //关键词模糊匹配
             if (StringUtils.hasText(keyword)) {
                 String k = "%" + keyword + "%";
                 preds.add(cb.or(
@@ -99,6 +104,7 @@ public class ItemService {
                 .build();
     }
 
+    //查询，根据item主键id ，返回物品信息（管理/内部用，不隐藏已过期）
     public ItemVO getById(Long id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(404, "物品不存在"));
@@ -106,8 +112,25 @@ public class ItemService {
         return toItemVO(item, cc);
     }
 
+    /**
+     * 前台查看详情：已过期(status=3)仅发布者本人可见，其他人视为不存在
+     */
+    public ItemVO getByIdForViewer(Long id, Long viewerUserId) {
+        Item item = itemRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(404, "物品不存在"));
+        if (item.getStatus() == STATUS_EXPIRED) {
+            if (viewerUserId == null || !item.getUser().getId().equals(viewerUserId)) {
+                throw new BusinessException(404, "物品不存在或已下架");
+            }
+        }
+        int cc = commentRepository.findByItemIdOrderByCreatedAtAsc(item.getId()).size();
+        return toItemVO(item, cc);
+    }
+
+    //修改物品状态
     @Transactional
     public ItemVO updateStatus(Long itemId, Long userId, Integer newStatus) {
+        userService.assertNotBanned(userId);
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new BusinessException(404, "物品不存在"));
         if (!item.getUser().getId().equals(userId)) {
@@ -118,6 +141,7 @@ public class ItemService {
         return toItemVO(item, commentRepository.findByItemIdOrderByCreatedAtAsc(item.getId()).size());
     }
 
+    //获取我的物品信息 通过type =0 丢失 =1 招领 type为item表中项
     public List<ItemVO> listMyItems(Long userId, int type) {
         List<Item> items = itemRepository.findByUserIdAndTypeOrderByCreatedAtDesc(userId, type);
         return items.stream()
@@ -125,6 +149,61 @@ public class ItemService {
                 .collect(Collectors.toList());
     }
 
+    /** 管理端列表：不传 status 时查全部，不默认只查寻找中 */
+    public PageResponse<ItemVO> adminList(String keyword, Long categoryId, Integer type, Integer status, int page, int size) {
+        Specification<Item> spec = (root, query, cb) -> {
+            List<Predicate> preds = new ArrayList<>();
+            if (status != null) preds.add(cb.equal(root.get("status"), status));
+            if (type != null) preds.add(cb.equal(root.get("type"), type));
+            if (categoryId != null) preds.add(cb.equal(root.get("category").get("id"), categoryId));
+            if (StringUtils.hasText(keyword)) {
+                String k = "%" + keyword + "%";
+                preds.add(cb.or(
+                        cb.like(cb.lower(root.get("title")), k.toLowerCase()),
+                        cb.like(cb.lower(root.get("description")), k.toLowerCase()),
+                        cb.like(cb.lower(root.get("location")), k.toLowerCase())
+                ));
+            }
+            return cb.and(preds.toArray(new Predicate[0]));
+        };
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Item> p = itemRepository.findAll(spec, pageable);
+        List<ItemVO> content = p.getContent().stream()
+                .map(i -> toItemVO(i, commentRepository.findByItemIdOrderByCreatedAtAsc(i.getId()).size()))
+                .collect(Collectors.toList());
+        return PageResponse.<ItemVO>builder()
+                .content(content)
+                .total(p.getTotalElements())
+                .page(p.getNumber())
+                .size(p.getSize())
+                .totalPages(p.getTotalPages())
+                .build();
+    }
+
+    /** 管理员编辑物品内容 */
+    @Transactional(readOnly = false)
+    public ItemVO adminUpdate(Long itemId, String title, String description, String location, String contact) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new BusinessException(404, "物品不存在"));
+        if (title != null) item.setTitle(title);
+        if (description != null) item.setDescription(description);
+        if (location != null) item.setLocation(location);
+        if (contact != null) item.setContact(contact);
+        item = itemRepository.save(item);
+        return toItemVO(item, commentRepository.findByItemIdOrderByCreatedAtAsc(item.getId()).size());
+    }
+
+    /** 管理员修改物品状态（含恢复过期等） */
+    @Transactional(readOnly = false)
+    public ItemVO adminUpdateStatus(Long itemId, Integer newStatus) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new BusinessException(404, "物品不存在"));
+        item.setStatus(newStatus);
+        item = itemRepository.save(item);
+        return toItemVO(item, commentRepository.findByItemIdOrderByCreatedAtAsc(item.getId()).size());
+    }
+
+    //删除物品信息，管理员或本人可删
     @Transactional
     public void delete(Long itemId, Long operatorId, boolean isAdmin) {
         Item item = itemRepository.findById(itemId)
@@ -135,6 +214,7 @@ public class ItemService {
         itemRepository.delete(item);
     }
 
+    //将物品信息item封装成前端要用的数据对象itemVo
     private ItemVO toItemVO(Item item, int commentCount) {
         return ItemVO.builder()
                 .id(item.getId())

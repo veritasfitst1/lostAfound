@@ -14,18 +14,20 @@ import java.io.PrintWriter;
 
 @Service
 @RequiredArgsConstructor
+//用于用户登录的核心类 负责处理前端请求 ， 给前端生成authresponse类
 public class AuthService {
 
-    private final UserRepository userRepository;
-    private final JwtUtil jwtUtil;
-    private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository; //user数据库操作
+    private final JwtUtil jwtUtil;     //token
+    private final PasswordEncoder passwordEncoder;  //密码加密
 
+    //微信登录
     public AuthResponse wxLogin(String openid, String nickname, String avatarUrl) {
-        // #region agent log
+        //log
         debugLog("{\"sessionId\":\"5795f3\",\"hypothesisId\":\"WX\",\"location\":\"AuthService.wxLogin\",\"message\":\"wxLogin called\",\"data\":{\"openid\":\"" + openid + "\",\"nickname\":\"" + nickname + "\"},\"timestamp\":" + System.currentTimeMillis() + "}");
-        // #endregion
+        //根据信息登录
         User user = userRepository.findByOpenid(openid)
-                .orElseGet(() -> {
+                .orElseGet(() -> {   //没有就生成一个
                     User u = User.builder()
                             .openid(openid)
                             .nickname(nickname != null ? nickname : "微信用户")
@@ -49,16 +51,17 @@ public class AuthService {
                 .build();
     }
 
+    //管理员登录
     public AuthResponse adminLogin(String username, String password) {
-        // #region agent log
+        //  log
         debugLog("{\"sessionId\":\"5795f3\",\"hypothesisId\":\"A\",\"location\":\"AuthService.adminLogin\",\"message\":\"adminLogin called\",\"data\":{\"username\":\"" + username + "\"},\"timestamp\":" + System.currentTimeMillis() + "}");
-        // #endregion
+
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BusinessException(401, "用户名或密码错误"));
-        // #region agent log
+        //  log
         boolean pwMatch = passwordEncoder.matches(password, user.getPassword());
         debugLog("{\"sessionId\":\"5795f3\",\"hypothesisId\":\"A\",\"location\":\"AuthService.adminLogin\",\"message\":\"password check\",\"data\":{\"role\":\"" + user.getRole() + "\",\"status\":" + user.getStatus() + ",\"pwMatch\":" + pwMatch + ",\"storedHash\":\"" + (user.getPassword() != null ? user.getPassword().substring(0, 10) : "null") + "...\"},\"timestamp\":" + System.currentTimeMillis() + "}");
-        // #endregion
+
         if (!"ADMIN".equals(user.getRole())) {
             throw new BusinessException(403, "非管理员账号");
         }
@@ -69,23 +72,23 @@ public class AuthService {
             throw new BusinessException(403, "账号已被封禁");
         }
         String token = jwtUtil.generateToken(user.getId(), user.getRole());
-        // #region agent log
+        // log
         debugLog("{\"sessionId\":\"5795f3\",\"hypothesisId\":\"B\",\"location\":\"AuthService.adminLogin\",\"message\":\"login success\",\"data\":{\"tokenLen\":" + token.length() + "},\"timestamp\":" + System.currentTimeMillis() + "}");
-        // #endregion
+
         return AuthResponse.builder()
                 .token(token)
                 .user(toUserVO(user))
                 .build();
     }
 
-    // #region agent log
+    // log
     private void debugLog(String json) {
         try (PrintWriter pw = new PrintWriter(new FileWriter("../debug-5795f3.log", true))) {
             pw.println(json);
         } catch (Exception ignored) {}
     }
-    // #endregion
 
+    //将数据库的user包装一下成为前端可用的userVO
     private UserVO toUserVO(User user) {
         return UserVO.builder()
                 .id(user.getId())

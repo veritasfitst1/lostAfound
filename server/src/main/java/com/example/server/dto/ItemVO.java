@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ItemVO {
-
+    //传给前端用的itemV0
     private Long id;
     private Long userId;
     private String userNickname;

@@ -6,18 +6,20 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@RestController  //返回json
 @RequestMapping("/api/items")
 @RequiredArgsConstructor
 public class ItemController {
 
     private final ItemService itemService;
 
+    //发布物品信息
     @PostMapping
     public CommonResponse<ItemVO> create(@RequestAttribute Long userId, @Valid @RequestBody ItemCreateRequest req) {
         return CommonResponse.ok(itemService.create(userId, req));
     }
 
+    //模糊查找 参数可选
     @GetMapping
     public CommonResponse<PageResponse<ItemVO>> list(
             @RequestParam(required = false) String keyword,
@@ -29,21 +31,25 @@ public class ItemController {
         return CommonResponse.ok(itemService.list(keyword, categoryId, type, status, page, size));
     }
 
+    //查询物品信息（已过期仅发布者可见）
     @GetMapping("/{id}")
-    public CommonResponse<ItemVO> getById(@PathVariable Long id) {
-        return CommonResponse.ok(itemService.getById(id));
+    public CommonResponse<ItemVO> getById(@RequestAttribute Long userId, @PathVariable Long id) {
+        return CommonResponse.ok(itemService.getByIdForViewer(id, userId));
     }
 
+    //更改我发布的物品状态
     @PutMapping("/{id}/status")
     public CommonResponse<ItemVO> updateStatus(@RequestAttribute Long userId, @PathVariable Long id, @RequestParam Integer status) {
         return CommonResponse.ok(itemService.updateStatus(id, userId, status));
     }
 
+    //获取我发布的丢失物品
     @GetMapping("/my/lost")
     public CommonResponse<java.util.List<ItemVO>> myLost(@RequestAttribute Long userId) {
         return CommonResponse.ok(itemService.listMyItems(userId, 0));
     }
 
+    //获取我发布的招领物品
     @GetMapping("/my/found")
     public CommonResponse<java.util.List<ItemVO>> myFound(@RequestAttribute Long userId) {
         return CommonResponse.ok(itemService.listMyItems(userId, 1));

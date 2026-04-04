@@ -156,12 +156,13 @@ code {
   }
 }
 
+/* 全宽布局：管理后台占满视口，避免宽屏两侧大块留白 */
 #app {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  text-align: left;
+  min-height: 100vh;
   min-height: 100svh;
   display: flex;
   flex-direction: column;

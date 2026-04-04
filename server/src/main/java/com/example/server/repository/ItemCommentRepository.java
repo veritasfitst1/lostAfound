@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 //
 public interface ItemCommentRepository extends JpaRepository<ItemComment, Long> {
-
+    //jpa自动解析并sql实现
     List<ItemComment> findByItemIdOrderByCreatedAtAsc(Long itemId);
 }

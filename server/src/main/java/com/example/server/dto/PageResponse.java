@@ -12,6 +12,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+//分页格式转换
 public class PageResponse<T> {
 
     private List<T> content;

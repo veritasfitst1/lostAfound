@@ -23,4 +23,7 @@ public interface ItemRepository extends JpaRepository<Item, Long>, JpaSpecificat
     long countByStatus(Integer status);
     //根据类型统计数目
     long countByType(Integer type);
+
+    @Query("SELECT COUNT(i) FROM Item i WHERE i.category.id = :categoryId")
+    long countByCategoryId(@Param("categoryId") Long categoryId);
 }

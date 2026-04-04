@@ -11,6 +11,7 @@ const routes = [
       { path: '', name: 'Dashboard', component: () => import('../views/Dashboard.vue'), meta: { title: '仪表盘' } },
       { path: 'users', name: 'UserManage', component: () => import('../views/UserManage.vue'), meta: { title: '用户管理' } },
       { path: 'items', name: 'ItemManage', component: () => import('../views/ItemManage.vue'), meta: { title: '物品管理' } },
+      { path: 'categories', name: 'CategoryManage', component: () => import('../views/CategoryManage.vue'), meta: { title: '分类管理' } },
       { path: 'reports', name: 'ReportManage', component: () => import('../views/ReportManage.vue'), meta: { title: '举报审核' } },
       { path: 'expired', name: 'ExpiredManage', component: () => import('../views/ExpiredManage.vue'), meta: { title: '过期处理' } }
     ]

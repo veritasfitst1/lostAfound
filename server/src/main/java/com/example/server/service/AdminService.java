@@ -102,7 +102,7 @@ public class AdminService {
                 .build();
     }
 
-    @Transactional
+    @Transactional(readOnly = false)
     public UserVO toggleBan(Long userId) {
         User user = userService.findById(userId);
         user.setStatus(user.getStatus() == 0 ? 1 : 0);
@@ -111,14 +111,15 @@ public class AdminService {
     }
 
     public PageResponse<ItemVO> listItems(Integer type, Integer status, int page, int size) {
-        return itemService.list(null, null, type, status, page, size);
+        return itemService.adminList(null, null, type, status, page, size);
     }
 
+    @Transactional(readOnly = false)
     public void deleteItem(Long itemId) {
         itemService.delete(itemId, null, true);
     }
 
-    @Transactional
+    @Transactional(readOnly = false)
     public List<ItemVO> expireOldItems(int days) {
         LocalDateTime cutoff = LocalDateTime.now().minusDays(days);
         List<Item> items = itemRepository.findAll().stream()
@@ -133,15 +134,32 @@ public class AdminService {
                 .collect(Collectors.toList());
     }
 
-    public List<ReportVO> listReports() {
-        return reportService.listAll();
+    @Transactional(readOnly = false)
+    public ItemVO updateItem(Long itemId, String title, String description, String location, String contact) {
+        return itemService.adminUpdate(itemId, title, description, location, contact);
     }
 
+    @Transactional(readOnly = false)
+    public ItemVO updateItemStatus(Long itemId, Integer status) {
+        return itemService.adminUpdateStatus(itemId, status);
+    }
+
+    public List<ReportVO> listReports(boolean pendingOnly) {
+        return pendingOnly ? reportService.listPending() : reportService.listAll();
+    }
+
+    @Transactional(readOnly = false)
     public ReportVO approveReport(Long reportId, String note) {
         return reportService.approve(reportId, null, note);
     }
 
+    @Transactional(readOnly = false)
     public ReportVO rejectReport(Long reportId, String note) {
         return reportService.reject(reportId, null, note);
+    }
+
+    @Transactional(readOnly = false)
+    public ReportVO revokeReport(Long reportId) {
+        return reportService.revoke(reportId);
     }
 }

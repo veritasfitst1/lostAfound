@@ -25,11 +25,12 @@ public class ReportService {
     private final ItemRepository itemRepository;
     private final UserService userService;
 
-    private static final int STATUS_PENDING = 0;
-    private static final int STATUS_APPROVED = 1;
-    private static final int STATUS_REJECTED = 2;
+    private static final int STATUS_PENDING = 0;  //待审核
+    private static final int STATUS_APPROVED = 1;  //通过
+    private static final int STATUS_REJECTED = 2;   //驳回
 
-    @Transactional
+    //创建举报信息
+    @Transactional(readOnly = false)
     public ReportVO create(Long reporterId, Long reportedUserId, Long reportedItemId, String reason) {
         User reporter = userService.findById(reporterId);
         if (reportedUserId == null && reportedItemId == null) {
@@ -59,6 +60,7 @@ public class ReportService {
                 .collect(Collectors.toList());
     }
 
+    //查询举报列表
     public List<ReportVO> listAll() {
         return reportRepository.findAll().stream()
                 .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
@@ -66,17 +68,41 @@ public class ReportService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
+    //通过举报：待处理时先处理物品(置为已过期)再处理被举报用户(封禁状态切换)；重复通过不再执行副作用
+    @Transactional(readOnly = false)
     public ReportVO approve(Long reportId, Long adminId, String adminNote) {
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new BusinessException(404, "举报不存在"));
+        boolean wasPending = report.getStatus() == STATUS_PENDING;
+        if (wasPending) {
+            applyApproveSideEffects(report);
+        }
         report.setStatus(STATUS_APPROVED);
         report.setAdminNote(adminNote);
         report = reportRepository.save(report);
         return toReportVO(report);
     }
 
-    @Transactional
+    /** 先物品后用户；不切换管理员账号状态 */
+    private void applyApproveSideEffects(Report report) {
+        if (report.getReportedItem() != null) {
+            Long itemId = report.getReportedItem().getId();
+            itemRepository.findById(itemId).ifPresent(item -> {
+                item.setStatus(3);
+                itemRepository.save(item);
+            });
+        }
+        if (report.getReportedUser() != null) {
+            User u = userRepository.findById(report.getReportedUser().getId()).orElse(null);
+            if (u != null && !"ADMIN".equals(u.getRole())) {
+                u.setStatus(u.getStatus() != null && u.getStatus() == 0 ? 1 : 0);
+                userRepository.save(u);
+            }
+        }
+    }
+
+    //拒绝举报
+    @Transactional(readOnly = false)
     public ReportVO reject(Long reportId, Long adminId, String adminNote) {
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new BusinessException(404, "举报不存在"));
@@ -86,10 +112,48 @@ public class ReportService {
         return toReportVO(report);
     }
 
+    /** 撤销举报：将已通过/已驳回的举报重置为待审核，并回退通过时的副作用 */
+    @Transactional(readOnly = false)
+    public ReportVO revoke(Long reportId) {
+        Report report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new BusinessException(404, "举报不存在"));
+        if (report.getStatus() == STATUS_PENDING) {
+            throw new BusinessException(400, "该举报已是待审核状态");
+        }
+        if (report.getStatus() == STATUS_APPROVED) {
+            revokeApproveSideEffects(report);
+        }
+        report.setStatus(STATUS_PENDING);
+        report.setAdminNote(null);
+        report = reportRepository.save(report);
+        return toReportVO(report);
+    }
+
+    /** 回退通过时的副作用：物品恢复寻找中，用户解封 */
+    private void revokeApproveSideEffects(Report report) {
+        if (report.getReportedItem() != null) {
+            itemRepository.findById(report.getReportedItem().getId()).ifPresent(item -> {
+                if (item.getStatus() == 3) {
+                    item.setStatus(0);
+                    itemRepository.save(item);
+                }
+            });
+        }
+        if (report.getReportedUser() != null) {
+            User u = userRepository.findById(report.getReportedUser().getId()).orElse(null);
+            if (u != null && !"ADMIN".equals(u.getRole()) && u.getStatus() != null && u.getStatus() == 1) {
+                u.setStatus(0);
+                userRepository.save(u);
+            }
+        }
+    }
+
+    //统计待处理举报数量
     public long countPending() {
         return reportRepository.findByStatusOrderByCreatedAtDesc(STATUS_PENDING).size();
     }
 
+    //返回给前端用的举报信息
     private ReportVO toReportVO(Report r) {
         return ReportVO.builder()
                 .id(r.getId())

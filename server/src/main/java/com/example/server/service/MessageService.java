@@ -23,9 +23,10 @@ public class MessageService {
     private final UserRepository userRepository;
     private final UserService userService;
 
-    private static final int MSG_TYPE_TEXT = 0;
-    private static final int MSG_TYPE_IMAGE = 1;
+    private static final int MSG_TYPE_TEXT = 0; //未读
+    private static final int MSG_TYPE_IMAGE = 1;  //已读
 
+    //获取会话列表
     public List<ConversationVO> getConversations(Long userId) {
         List<Message> all = messageRepository.findByUserId(userId);
         Map<Long, List<Message>> byOther = new HashMap<>();
@@ -57,20 +58,23 @@ public class MessageService {
         return result;
     }
 
+    //获取与某一个用户的单个会话
     @Transactional
     public List<MessageVO> getConversation(Long userId, Long otherUserId) {
         List<Message> msgs = messageRepository.findConversation(userId, otherUserId);
         msgs.stream()
                 .filter(m -> m.getReceiver().getId().equals(userId) && m.getIsRead() == 0)
                 .forEach(m -> {
-                    m.setIsRead(1);
+                    m.setIsRead(1); //设为已读
                     messageRepository.save(m);
                 });
         return msgs.stream().map(this::toMessageVO).collect(Collectors.toList());
     }
 
+    //发送消息
     @Transactional
     public MessageVO send(Long senderId, Long receiverId, String content, int msgType) {
+        userService.assertNotBanned(senderId);
         User sender = userService.findById(senderId);
         User receiver = userService.findById(receiverId);
         if (receiver.getStatus() == 1) {
@@ -88,6 +92,7 @@ public class MessageService {
         return toMessageVO(msg);
     }
 
+    //获取未读消息总数目
     public long getUnreadCount(Long userId) {
         return messageRepository.countByReceiverIdAndIsRead(userId, 0);
     }

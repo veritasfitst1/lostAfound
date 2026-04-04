@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-
+    //获取个人信息
     @GetMapping("/me")
     public CommonResponse<UserVO> getProfile(@RequestAttribute Long userId) {
         return CommonResponse.ok(userService.getProfile(userId));
     }
-
+    //更新个人信息
     @PutMapping("/me")
     public CommonResponse<UserVO> updateProfile(@RequestAttribute Long userId, @RequestBody UserUpdateRequest req) {
         return CommonResponse.ok(userService.updateProfile(userId, req.getNickname(), req.getAvatarUrl(), req.getPhone()));

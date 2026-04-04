@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserVO {
-
+    //返回给微信前端用的user信息集合
     private Long id;
     private String openid;
     private String username;

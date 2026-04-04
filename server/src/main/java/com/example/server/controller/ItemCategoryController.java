@@ -14,7 +14,7 @@ import java.util.List;
 @RequestMapping("/api/categories")
 @RequiredArgsConstructor
 public class ItemCategoryController {
-
+    //小程序端用，总的分类
     private final ItemCategoryService categoryService;
 
     @GetMapping

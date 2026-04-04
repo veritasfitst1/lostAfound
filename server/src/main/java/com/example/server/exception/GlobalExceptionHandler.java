@@ -12,12 +12,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
 @RestControllerAdvice
+//将各种异常返回给前端
 public class GlobalExceptionHandler {
+    //捕获对应异常并处理
+    //ResponseEntity<T> 是http封装响应类
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<CommonResponse<?>> handleBusiness(BusinessException e) {
-        return ResponseEntity.status(e.getCode() >= 400 ? e.getCode() : 400)
-                .body(CommonResponse.fail(e.getCode(), e.getMessage()));
+        return ResponseEntity.status(e.getCode() >= 400 ? e.getCode() : 400) //状态码
+                .body(CommonResponse.fail(e.getCode(), e.getMessage()));   //响应体
     }
 
     @ExceptionHandler(AccessDeniedException.class)

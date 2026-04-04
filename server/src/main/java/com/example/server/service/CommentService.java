@@ -23,14 +23,24 @@ public class CommentService {
     private final ItemRepository itemRepository;
     private final UserService userService;
 
-    public List<CommentVO> listByItemId(Long itemId) {
+    //评论列表（已过期物品仅发布者可查看留言）
+    public List<CommentVO> listByItemId(Long itemId, Long viewerUserId) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new BusinessException(404, "物品不存在"));
+        if (item.getStatus() == 3) {
+            if (viewerUserId == null || !item.getUser().getId().equals(viewerUserId)) {
+                throw new BusinessException(404, "物品不存在或已下架");
+            }
+        }
         return commentRepository.findByItemIdOrderByCreatedAtAsc(itemId).stream()
                 .map(this::toCommentVO)
                 .collect(Collectors.toList());
     }
 
+    //添加评论
     @Transactional
     public CommentVO create(Long userId, Long itemId, String content) {
+        userService.assertNotBanned(userId);
         User user = userService.findById(userId);
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new BusinessException(404, "物品不存在"));
@@ -47,6 +57,7 @@ public class CommentService {
         return toCommentVO(comment);
     }
 
+    //封装成前端可用
     private CommentVO toCommentVO(ItemComment c) {
         return CommentVO.builder()
                 .id(c.getId())
