@@ -1,6 +1,6 @@
 <view class="container">
   <view class="conv-item flex-between" wx:for="{{conversations}}" wx:key="otherUserId" data-id="{{item.otherUserId}}" bindtap="toChat">
-    <image class="conv-avatar" src="{{item.otherUserAvatarUrl || '/assets/icons/user.png'}}" mode="aspectFill"/>
+    <image class="conv-avatar" src="{{item.otherUserAvatarUrl || '/assets/icons/user.png'}}" mode="aspectFill" data-idx="{{index}}" binderror="onAvatarError"/>
     <view class="conv-content">
       <view class="conv-name">{{item.otherUserNickname || '用户'}}</view>
       <view class="conv-msg text-gray">{{item.lastMessage}}</view>

@@ -1,12 +1,32 @@
 <view class="container">
   <view class="user-card">
-    <image class="avatar" src="{{user.avatarUrl || '/assets/icons/user.png'}}" mode="aspectFill"/>
+    <view class="avatar-wrap" bindtap="onChangeAvatar">
+      <image class="avatar" src="{{user.displayAvatarUrl || '/assets/icons/user.png'}}" mode="aspectFill"/>
+      <view class="avatar-hint">换头像</view>
+    </view>
     <view class="user-info">
       <view class="nickname" bindtap="onEditNickname">{{user.nickname || '微信用户'}}</view>
+      <view class="user-meta">账号：{{user.username || '未设置'}}</view>
+      <view class="user-meta">微信：{{user.openid ? '已绑定' : '未绑定'}}</view>
       <view class="user-id text-gray">ID: {{user.id}}</view>
     </view>
   </view>
   <view class="menu-section">
+    <view class="menu-item flex-between" wx:if="{{!user.openid}}" bindtap="bindWeChat">
+      <text>绑定微信</text>
+      <text class="arrow">›</text>
+    </view>
+    <view class="menu-item flex-between menu-disabled" wx:else>
+      <text class="text-muted">微信已绑定</text>
+    </view>
+    <view class="menu-item flex-between" bindtap="onEditUsername">
+      <text>修改账号</text>
+      <text class="arrow">›</text>
+    </view>
+    <view class="menu-item flex-between" bindtap="onEditPassword">
+      <text>修改密码</text>
+      <text class="arrow">›</text>
+    </view>
     <view class="menu-item flex-between" bindtap="toMyLost">
       <text>我的失物发布</text>
       <text class="arrow">›</text>

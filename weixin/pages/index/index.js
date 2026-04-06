@@ -1,4 +1,5 @@
 const { get } = require('../../utils/request')
+const { resolveItemImages } = require('../../utils/config')
 
 Page({
   data: {
@@ -11,7 +12,11 @@ Page({
     page: 0,
     size: 10,
     hasMore: true,
-    showFilter: false
+    showFilter: false,
+    aiSearching: false,
+    aiKeywords: '',
+    aiMatchedCategoryId: null,
+    scrollIntoView: ''
   },
 
   onLoad() {
@@ -20,6 +25,18 @@ Page({
   },
 
   onShow() {
+    const imageSearchResult = wx.getStorageSync('imageSearchResult')
+    if (imageSearchResult && imageSearchResult.ts) {
+      wx.removeStorageSync('imageSearchResult')
+      const nextCategoryId = imageSearchResult.suggestedCategoryId || null
+      this.setData({
+        aiSearching: false,
+        aiKeywords: imageSearchResult.success ? '1' : '',
+        aiMatchedCategoryId: nextCategoryId,
+        categoryId: nextCategoryId
+      }, () => this.loadItems(true, true))
+      return
+    }
     this.loadItems(true)
   },
 
@@ -29,7 +46,7 @@ Page({
     }).catch(() => {})
   },
 
-  loadItems(refresh) {
+  loadItems(refresh, jumpToResult = false) {
     if (refresh) {
       this.setData({ page: 0, hasMore: true })
     }
@@ -42,13 +59,19 @@ Page({
 
     this.setData({ loading: true })
     get('/api/items', params).then(res => {
-      const list = res.data?.content || []
+      const list = (res.data?.content || []).map(resolveItemImages)
       const prev = refresh ? [] : this.data.items
       this.setData({
         items: [...prev, ...list],
         page: (res.data?.page || 0) + 1,
         hasMore: (res.data?.content?.length || 0) >= size,
         loading: false
+      }, () => {
+        if (jumpToResult) {
+          this.setData({ scrollIntoView: '' }, () => {
+            setTimeout(() => this.setData({ scrollIntoView: 'result-top' }), 30)
+          })
+        }
       })
     }).catch(() => this.setData({ loading: false }))
   },
@@ -83,5 +106,18 @@ Page({
 
   onReachBottom() {
     this.loadItems(false)
+  },
+
+  onImageSearch() {
+    wx.navigateTo({ url: '/pages/image-search/image-search' })
+  },
+
+  clearAiSearch() {
+    this.setData({
+      aiKeywords: '',
+      aiSearching: false,
+      categoryId: this.data.categoryId === this.data.aiMatchedCategoryId ? null : this.data.categoryId,
+      aiMatchedCategoryId: null
+    }, () => this.loadItems(true))
   }
 })

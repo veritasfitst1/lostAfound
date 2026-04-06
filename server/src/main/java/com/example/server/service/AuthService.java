@@ -20,28 +20,22 @@ public class AuthService {
     private final UserRepository userRepository; //user数据库操作
     private final JwtUtil jwtUtil;     //token
     private final PasswordEncoder passwordEncoder;  //密码加密
+    private final WechatService wechatService;
 
-    //微信登录
-    public AuthResponse wxLogin(String openid, String nickname, String avatarUrl) {
-        //log
-        debugLog("{\"sessionId\":\"5795f3\",\"hypothesisId\":\"WX\",\"location\":\"AuthService.wxLogin\",\"message\":\"wxLogin called\",\"data\":{\"openid\":\"" + openid + "\",\"nickname\":\"" + nickname + "\"},\"timestamp\":" + System.currentTimeMillis() + "}");
-        //根据信息登录
+    /** 微信一键登录：用 code 换 openid，已存在则登录，否则自动创建用户 */
+    public AuthResponse wxLogin(String code) {
+        String openid = wechatService.getOpenid(code);
+        debugLog("{\"sessionId\":\"5795f3\",\"hypothesisId\":\"WX\",\"location\":\"AuthService.wxLogin\",\"message\":\"wxLogin\",\"data\":{\"openid\":\"" + openid + "\"},\"timestamp\":" + System.currentTimeMillis() + "}");
         User user = userRepository.findByOpenid(openid)
-                .orElseGet(() -> {   //没有就生成一个
-                    User u = User.builder()
-                            .openid(openid)
-                            .nickname(nickname != null ? nickname : "微信用户")
-                            .avatarUrl(avatarUrl)
-                            .role("USER")
-                            .status(0)
-                            .build();
-                    return userRepository.save(u);
-                });
+                .orElseGet(() -> userRepository.save(User.builder()
+                        .openid(openid)
+                        .nickname("微信用户")
+                        .role("USER")
+                        .status(0)
+                        .build()));
         if (user.getStatus() == 1) {
             throw new BusinessException(403, "账号已被封禁");
         }
-        if (nickname != null) user.setNickname(nickname);
-        if (avatarUrl != null) user.setAvatarUrl(avatarUrl);
         userRepository.save(user);
 
         String token = jwtUtil.generateToken(user.getId(), user.getRole());
@@ -81,7 +75,44 @@ public class AuthService {
                 .build();
     }
 
-    // log
+    public AuthResponse userLogin(String username, String password) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new BusinessException(401, "用户名或密码错误"));
+        if (user.getPassword() == null || user.getPassword().isBlank()) {
+            throw new BusinessException(400, "该账号未设置密码，请使用微信登录或在个人中心设置密码");
+        }
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new BusinessException(401, "用户名或密码错误");
+        }
+        if (user.getStatus() == 1) {
+            throw new BusinessException(403, "账号已被封禁");
+        }
+        String token = jwtUtil.generateToken(user.getId(), user.getRole());
+        return AuthResponse.builder()
+                .token(token)
+                .user(toUserVO(user))
+                .build();
+    }
+
+    public AuthResponse register(String username, String password, String nickname) {
+        if (userRepository.findByUsername(username).isPresent()) {
+            throw new BusinessException(400, "用户名已存在");
+        }
+        User user = User.builder()
+                .username(username)
+                .password(passwordEncoder.encode(password))
+                .nickname(nickname != null && !nickname.isBlank() ? nickname : username)
+                .role("USER")
+                .status(0)
+                .build();
+        userRepository.save(user);
+        String token = jwtUtil.generateToken(user.getId(), user.getRole());
+        return AuthResponse.builder()
+                .token(token)
+                .user(toUserVO(user))
+                .build();
+    }
+
     private void debugLog(String json) {
         try (PrintWriter pw = new PrintWriter(new FileWriter("../debug-5795f3.log", true))) {
             pw.println(json);

@@ -35,3 +35,21 @@
 {"sessionId":"5795f3","hypothesisId":"A","location":"AuthService.adminLogin","message":"adminLogin called","data":{"username":"admin"},"timestamp":1775290760699}
 {"sessionId":"5795f3","hypothesisId":"A","location":"AuthService.adminLogin","message":"password check","data":{"role":"ADMIN","status":0,"pwMatch":true,"storedHash":"$2a$10$10F..."},"timestamp":1775290760832}
 {"sessionId":"5795f3","hypothesisId":"B","location":"AuthService.adminLogin","message":"login success","data":{"tokenLen":145},"timestamp":1775290760901}
+{"sessionId":"5795f3","hypothesisId":"A","location":"AuthService.adminLogin","message":"adminLogin called","data":{"username":"admin"},"timestamp":1775369518453}
+{"sessionId":"5795f3","hypothesisId":"A","location":"AuthService.adminLogin","message":"password check","data":{"role":"ADMIN","status":0,"pwMatch":true,"storedHash":"$2a$10$10F..."},"timestamp":1775369518571}
+{"sessionId":"5795f3","hypothesisId":"B","location":"AuthService.adminLogin","message":"login success","data":{"tokenLen":145},"timestamp":1775369518636}
+{"sessionId":"5795f3","hypothesisId":"WX","location":"AuthService.wxLogin","message":"wxLogin called","data":{"openid":"wx_test_zczh9ex32","nickname":"微信用户"},"timestamp":1775369749650}
+{"sessionId":"5795f3","hypothesisId":"WX","location":"AuthService.wxLogin","message":"wxLogin called","data":{"openid":"wx_test_tgr0tqhiv","nickname":"微信用户"},"timestamp":1775369868429}
+{"sessionId":"5795f3","hypothesisId":"WX","location":"AuthService.wxLogin","message":"wxLogin called","data":{"openid":"wx_test_user_001","nickname":"微信用户"},"timestamp":1775378817052}
+{"sessionId":"5795f3","hypothesisId":"WX","location":"AuthService.wxLogin","message":"wxLogin","data":{"openid":"o70pw3Zvzrz3rPmbHBkJ11eBDoo4"},"timestamp":1775381384248}
+{"sessionId":"5795f3","hypothesisId":"WX","location":"AuthService.wxLogin","message":"wxLogin","data":{"openid":"o70pw3Zvzrz3rPmbHBkJ11eBDoo4"},"timestamp":1775381701083}
+{"sessionId":"5795f3","hypothesisId":"WX","location":"AuthService.wxLogin","message":"wxLogin","data":{"openid":"o70pw3Zvzrz3rPmbHBkJ11eBDoo4"},"timestamp":1775381713162}
+{"sessionId":"5795f3","hypothesisId":"WX","location":"AuthService.wxLogin","message":"wxLogin","data":{"openid":"o70pw3Zvzrz3rPmbHBkJ11eBDoo4"},"timestamp":1775393093518}
+{"sessionId":"5795f3","hypothesisId":"A","location":"AuthService.adminLogin","message":"adminLogin called","data":{"username":"admin"},"timestamp":1775393689693}
+{"sessionId":"5795f3","hypothesisId":"A","location":"AuthService.adminLogin","message":"password check","data":{"role":"ADMIN","status":0,"pwMatch":true,"storedHash":"$2a$10$10F..."},"timestamp":1775393689805}
+{"sessionId":"5795f3","hypothesisId":"B","location":"AuthService.adminLogin","message":"login success","data":{"tokenLen":145},"timestamp":1775393689809}
+{"sessionId":"5795f3","hypothesisId":"WX","location":"AuthService.wxLogin","message":"wxLogin","data":{"openid":"o70pw3Zvzrz3rPmbHBkJ11eBDoo4"},"timestamp":1775393961984}
+{"sessionId":"5795f3","hypothesisId":"WX","location":"AuthService.wxLogin","message":"wxLogin","data":{"openid":"o70pw3Zvzrz3rPmbHBkJ11eBDoo4"},"timestamp":1775396220067}
+{"sessionId":"5795f3","hypothesisId":"A","location":"AuthService.adminLogin","message":"adminLogin called","data":{"username":"admin"},"timestamp":1775468980242}
+{"sessionId":"5795f3","hypothesisId":"A","location":"AuthService.adminLogin","message":"password check","data":{"role":"ADMIN","status":0,"pwMatch":true,"storedHash":"$2a$10$10F..."},"timestamp":1775468980368}
+{"sessionId":"5795f3","hypothesisId":"B","location":"AuthService.adminLogin","message":"login success","data":{"tokenLen":145},"timestamp":1775468980544}

@@ -16,7 +16,17 @@ public class AuthController {
 
     @PostMapping("/wx-login")
     public CommonResponse<AuthResponse> wxLogin(@RequestBody WxLoginRequest req) {
-        return CommonResponse.ok(authService.wxLogin(req.getOpenid(), req.getNickname(), req.getAvatarUrl()));
+        return CommonResponse.ok(authService.wxLogin(req.getCode()));
+    }
+
+    @PostMapping("/login")
+    public CommonResponse<AuthResponse> login(@Valid @RequestBody AdminLoginRequest req) {
+        return CommonResponse.ok(authService.userLogin(req.getUsername(), req.getPassword()));
+    }
+
+    @PostMapping("/register")
+    public CommonResponse<AuthResponse> register(@Valid @RequestBody RegisterRequest req) {
+        return CommonResponse.ok(authService.register(req.getUsername(), req.getPassword(), req.getNickname()));
     }
 
     @PostMapping("/admin-login")

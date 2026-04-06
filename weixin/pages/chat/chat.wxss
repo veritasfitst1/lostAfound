@@ -58,11 +58,10 @@
   font-size: 28rpx;
 }
 
-.btn-send {
+.send-btn-image {
   margin-left: 16rpx;
-  padding: 20rpx 40rpx;
-  font-size: 28rpx;
-  background: #1989fa;
-  color: #fff;
-  border-radius: 32rpx;
+  margin-top: 6rpx;
+  width: 64rpx;
+  height: 64rpx;
+  flex-shrink: 0;
 }

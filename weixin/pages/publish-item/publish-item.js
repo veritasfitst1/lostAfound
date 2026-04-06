@@ -1,4 +1,5 @@
 const { get, post } = require('../../utils/request')
+const { API_BASE, resolveImageUrl } = require('../../utils/config')
 
 Page({
   data: {
@@ -40,7 +41,6 @@ Page({
       mediaType: ['image'],
       success: (res) => {
         const files = res.tempFiles
-        const { API_BASE } = require('../../utils/config')
         const upload = (file) => new Promise((resolve, reject) => {
           const token = wx.getStorageSync('token')
           wx.uploadFile({
@@ -51,7 +51,7 @@ Page({
             success: (r) => {
               try {
                 const data = JSON.parse(r.data)
-                resolve(data.data)
+                resolve(resolveImageUrl(data.data))
               } catch { reject() }
             },
             fail: reject
@@ -84,7 +84,7 @@ Page({
       description: description.trim(),
       location: location.trim(),
       contact: contact.trim(),
-      images
+      images: images.map(u => u.startsWith(API_BASE) ? u.slice(API_BASE.length) : u)
     }).then(() => {
       wx.hideLoading()
       wx.showToast({ title: '发布成功' })

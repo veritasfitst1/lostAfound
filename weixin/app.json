@@ -9,7 +9,8 @@
     "pages/my-lost/my-lost",
     "pages/my-found/my-found",
     "pages/chat/chat",
-    "pages/login/login"
+    "pages/login/login",
+    "pages/image-search/image-search"
   ],
   "window": {
     "navigationBarTextStyle": "white",
@@ -25,7 +26,7 @@
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "失物",
+        "text": "主页",
         "iconPath": "assets/icons/home.png",
         "selectedIconPath": "assets/icons/home-active.png"
       },

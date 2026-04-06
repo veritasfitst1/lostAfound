@@ -1,0 +1,14 @@
+<view class="container image-search-page">
+  <view class="simple-card">
+    <image class="simple-icon" src="/assets/icons/camera-line.png" mode="aspectFit"/>
+    <view class="title">以图搜物</view>
+    <view class="desc">上传图片后，系统会自动识别并展示搜索结果。</view>
+    <image
+      class="upload-entry-image {{loading ? 'disabled' : ''}}"
+      src="/assets/icons/upload-image-entry.png"
+      mode="aspectFit"
+      bindtap="onUploadImage"
+    />
+    <view class="back-link" bindtap="goBack">返回首页</view>
+  </view>
+</view>

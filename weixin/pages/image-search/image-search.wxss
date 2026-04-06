@@ -1,0 +1,55 @@
+.image-search-page {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 100vh;
+  padding-top: 40rpx;
+  box-sizing: border-box;
+}
+
+.simple-card {
+  width: 100%;
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 48rpx 32rpx 36rpx;
+  text-align: center;
+}
+
+.simple-icon {
+  width: 72rpx;
+  height: 72rpx;
+  margin: 0 auto 20rpx;
+}
+
+.title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 16rpx;
+}
+
+.desc {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 36rpx;
+}
+
+.upload-entry-image {
+  width: 240rpx;
+  height: 240rpx;
+  border-radius: 16rpx;
+  background: #fff;
+  display: block;
+  margin: 0 auto;
+}
+
+.upload-entry-image.disabled {
+  opacity: 0.6;
+}
+
+.back-link {
+  margin-top: 40rpx;
+  font-size: 26rpx;
+  color: #1989fa;
+}

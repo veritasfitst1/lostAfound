@@ -1,4 +1,5 @@
 const { get, put } = require('../../utils/request')
+const { resolveItemImages } = require('../../utils/config')
 
 Page({
   data: {
@@ -11,7 +12,7 @@ Page({
 
   loadItems() {
     get('/api/items/my/found').then(res => {
-      this.setData({ items: res.data || [] })
+      this.setData({ items: (res.data || []).map(resolveItemImages) })
     }).catch(() => this.setData({ items: [] }))
   },
 

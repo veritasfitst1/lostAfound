@@ -4,8 +4,6 @@ import lombok.Data;
 
 @Data
 public class WxLoginRequest {
-    //前端登录接口请求体，微信用户登录用 接受前端信息
-    private String openid;
-    private String nickname;
-    private String avatarUrl;
+    /** 小程序 wx.login 返回的临时 code，后端换取 openid */
+    private String code;
 }

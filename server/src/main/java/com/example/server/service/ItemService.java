@@ -22,7 +22,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,6 +48,26 @@ public class ItemService {
     private static final int STATUS_FOUND = 1;  //已找到
     private static final int STATUS_CANCELLED = 2;  //取消
     private static final int STATUS_EXPIRED = 3; //过期
+    // 轻量同义词词典：最小实现，优先覆盖常见失物词
+    private static final Map<String, List<String>> QUERY_SYNONYM_MAP = new HashMap<>();
+
+    static {
+        addSynonymGroup("书", "书籍", "课本", "教材", "笔记本", "讲义");
+        addSynonymGroup("手机", "电话", "苹果手机", "安卓手机");
+        addSynonymGroup("电脑", "笔记本电脑", "笔记本", "平板", "ipad");
+        addSynonymGroup("证件", "身份证", "学生证", "校园卡", "银行卡", "卡");
+        addSynonymGroup("钥匙", "钥匙扣", "钥匙串", "车钥匙");
+        addSynonymGroup("水杯", "杯子", "保温杯", "水壶");
+        addSynonymGroup("雨伞", "伞");
+        addSynonymGroup("背包", "书包", "包", "双肩包", "挎包");
+    }
+
+    private static void addSynonymGroup(String... words) {
+        List<String> group = Arrays.stream(words).map(String::toLowerCase).distinct().toList();
+        for (String w : group) {
+            QUERY_SYNONYM_MAP.put(w, group);
+        }
+    }
 
     //创建物品信息
     @Transactional
@@ -69,6 +96,7 @@ public class ItemService {
     //查询功能  根据传的信息筛选
     //keyword：输入的关键字 type：0丢失 1招领  categoryId：分类id status状态
     public PageResponse<ItemVO> list(String keyword, Long categoryId, Integer type, Integer status, int page, int size) {
+        List<String> expandedKeywords = expandKeywords(keyword);
         Specification<Item> spec = (root, query, cb) -> {
             List<Predicate> preds = new ArrayList<>();
             if (status != null) { //传了状态就按状态查，没有就默认只差寻找中的
@@ -79,20 +107,23 @@ public class ItemService {
             if (type != null) preds.add(cb.equal(root.get("type"), type));
             if (categoryId != null) preds.add(cb.equal(root.get("category").get("id"), categoryId));
             //关键词模糊匹配
-            if (StringUtils.hasText(keyword)) {
-                String k = "%" + keyword + "%";
-                preds.add(cb.or(
-                        cb.like(cb.lower(root.get("title")), k.toLowerCase()),
-                        cb.like(cb.lower(root.get("description")), k.toLowerCase()),
-                        cb.like(cb.lower(root.get("location")), k.toLowerCase())
-                ));
+            if (!expandedKeywords.isEmpty()) {
+                List<Predicate> keywordPreds = new ArrayList<>();
+                for (String kw : expandedKeywords) {
+                    String k = "%" + kw + "%";
+                    keywordPreds.add(cb.like(cb.lower(root.get("title")), k));
+                    keywordPreds.add(cb.like(cb.lower(root.get("description")), k));
+                    keywordPreds.add(cb.like(cb.lower(root.get("location")), k));
+                }
+                preds.add(cb.or(keywordPreds.toArray(new Predicate[0])));
             }
             return cb.and(preds.toArray(new Predicate[0]));
         };
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Item> p = itemRepository.findAll(spec, pageable);
-        List<ItemVO> content = p.getContent().stream()
+        List<Item> rankedItems = rerankItems(p.getContent(), keyword, expandedKeywords);
+        List<ItemVO> content = rankedItems.stream()
                 .map(i -> toItemVO(i, commentRepository.findByItemIdOrderByCreatedAtAsc(i.getId()).size()))
                 .collect(Collectors.toList());
         return PageResponse.<ItemVO>builder()
@@ -151,24 +182,28 @@ public class ItemService {
 
     /** 管理端列表：不传 status 时查全部，不默认只查寻找中 */
     public PageResponse<ItemVO> adminList(String keyword, Long categoryId, Integer type, Integer status, int page, int size) {
+        List<String> expandedKeywords = expandKeywords(keyword);
         Specification<Item> spec = (root, query, cb) -> {
             List<Predicate> preds = new ArrayList<>();
             if (status != null) preds.add(cb.equal(root.get("status"), status));
             if (type != null) preds.add(cb.equal(root.get("type"), type));
             if (categoryId != null) preds.add(cb.equal(root.get("category").get("id"), categoryId));
-            if (StringUtils.hasText(keyword)) {
-                String k = "%" + keyword + "%";
-                preds.add(cb.or(
-                        cb.like(cb.lower(root.get("title")), k.toLowerCase()),
-                        cb.like(cb.lower(root.get("description")), k.toLowerCase()),
-                        cb.like(cb.lower(root.get("location")), k.toLowerCase())
-                ));
+            if (!expandedKeywords.isEmpty()) {
+                List<Predicate> keywordPreds = new ArrayList<>();
+                for (String kw : expandedKeywords) {
+                    String k = "%" + kw + "%";
+                    keywordPreds.add(cb.like(cb.lower(root.get("title")), k));
+                    keywordPreds.add(cb.like(cb.lower(root.get("description")), k));
+                    keywordPreds.add(cb.like(cb.lower(root.get("location")), k));
+                }
+                preds.add(cb.or(keywordPreds.toArray(new Predicate[0])));
             }
             return cb.and(preds.toArray(new Predicate[0]));
         };
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Item> p = itemRepository.findAll(spec, pageable);
-        List<ItemVO> content = p.getContent().stream()
+        List<Item> rankedItems = rerankItems(p.getContent(), keyword, expandedKeywords);
+        List<ItemVO> content = rankedItems.stream()
                 .map(i -> toItemVO(i, commentRepository.findByItemIdOrderByCreatedAtAsc(i.getId()).size()))
                 .collect(Collectors.toList());
         return PageResponse.<ItemVO>builder()
@@ -178,6 +213,79 @@ public class ItemService {
                 .size(p.getSize())
                 .totalPages(p.getTotalPages())
                 .build();
+    }
+
+    private List<String> expandKeywords(String keyword) {
+        if (!StringUtils.hasText(keyword)) return List.of();
+        String k = keyword.trim().toLowerCase();
+        LinkedHashSet<String> expanded = new LinkedHashSet<>();
+        expanded.add(k);
+        for (Map.Entry<String, List<String>> e : QUERY_SYNONYM_MAP.entrySet()) {
+            String key = e.getKey();
+            if (k.contains(key) || key.contains(k)) {
+                expanded.addAll(e.getValue());
+            }
+        }
+        return expanded.stream().limit(8).toList();
+    }
+
+    private List<Item> rerankItems(List<Item> items, String keyword, List<String> expandedKeywords) {
+        if (!StringUtils.hasText(keyword) || items.isEmpty()) return items;
+        return items.stream()
+                .sorted(Comparator
+                        .comparingDouble((Item i) -> scoreItem(i, keyword, expandedKeywords)).reversed()
+                        .thenComparing(Item::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Hybrid最小实现：
+     * 1) 原词命中加分 2) 同义词命中加分 3) 字符2-gram Jaccard相似度加分
+     */
+    private double scoreItem(Item item, String keyword, List<String> expandedKeywords) {
+        String k = keyword == null ? "" : keyword.trim().toLowerCase();
+        String title = item.getTitle() == null ? "" : item.getTitle().toLowerCase();
+        String desc = item.getDescription() == null ? "" : item.getDescription().toLowerCase();
+        String location = item.getLocation() == null ? "" : item.getLocation().toLowerCase();
+        String allText = (title + " " + desc + " " + location).trim();
+
+        double score = 0d;
+        if (!k.isEmpty() && allText.contains(k)) score += 5d;
+        for (String syn : expandedKeywords) {
+            if (allText.contains(syn)) score += 1.5d;
+        }
+
+        double titleSim = ngramJaccard(k, title, 2);
+        double allSim = ngramJaccard(k, allText, 2);
+        score += (titleSim * 2.5d + allSim * 1.5d);
+        return score;
+    }
+
+    private double ngramJaccard(String a, String b, int n) {
+        if (!StringUtils.hasText(a) || !StringUtils.hasText(b)) return 0d;
+        Set<String> aSet = toNgrams(a, n);
+        Set<String> bSet = toNgrams(b, n);
+        if (aSet.isEmpty() || bSet.isEmpty()) return 0d;
+        Set<String> intersection = new HashSet<>(aSet);
+        intersection.retainAll(bSet);
+        Set<String> union = new HashSet<>(aSet);
+        union.addAll(bSet);
+        if (union.isEmpty()) return 0d;
+        return (double) intersection.size() / union.size();
+    }
+
+    private Set<String> toNgrams(String text, int n) {
+        Set<String> set = new HashSet<>();
+        String s = text.trim();
+        if (s.isEmpty()) return set;
+        if (s.length() <= n) {
+            set.add(s);
+            return set;
+        }
+        for (int i = 0; i <= s.length() - n; i++) {
+            set.add(s.substring(i, i + n));
+        }
+        return set;
     }
 
     /** 管理员编辑物品内容 */

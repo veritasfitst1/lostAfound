@@ -1,6 +1,45 @@
-<view class="container flex-center" style="flex-direction: column;">
-  <view class="logo">🔍</view>
-  <view class="title">校园失物招领</view>
-  <view class="subtitle">找遗失、发招领，互帮互助</view>
-  <button class="btn-login" bindtap="onLogin">微信一键登录</button>
+<view class="page">
+  <view class="header">
+    <view class="logo">🔍</view>
+    <view class="app-name">校园失物招领</view>
+    <view class="app-desc">找遗失、发招领，互帮互助</view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">{{isRegister ? '创建账号' : '账号登录'}}</view>
+
+    <view class="input-group">
+      <view class="input-wrap">
+        <text class="input-icon">👤</text>
+        <input class="input" placeholder="请输入用户名" value="{{username}}" bindinput="onUsernameInput"/>
+      </view>
+      <view class="input-wrap">
+        <text class="input-icon">🔒</text>
+        <input class="input" placeholder="请输入密码" password value="{{password}}" bindinput="onPasswordInput"/>
+      </view>
+      <view class="input-wrap" wx:if="{{isRegister}}">
+        <text class="input-icon">😊</text>
+        <input class="input" placeholder="昵称（选填）" value="{{nickname}}" bindinput="onNicknameInput"/>
+      </view>
+    </view>
+
+    <button class="btn-primary" bindtap="{{isRegister ? 'onRegister' : 'onLogin'}}">{{isRegister ? '注 册' : '登 录'}}</button>
+
+    <view class="switch-row">
+      <text class="switch-text" wx:if="{{!isRegister}}">还没有账号？</text>
+      <text class="switch-text" wx:else>已有账号？</text>
+      <text class="switch-link" bindtap="toggleMode">{{isRegister ? '去登录' : '立即注册'}}</text>
+    </view>
+  </view>
+
+  <view class="divider">
+    <view class="divider-line"/>
+    <text class="divider-text">其他登录方式</text>
+    <view class="divider-line"/>
+  </view>
+
+  <view class="other-login" bindtap="onWxLogin">
+    <view class="wx-icon">💬</view>
+    <text class="wx-label">微信一键登录</text>
+  </view>
 </view>

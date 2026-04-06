@@ -37,10 +37,10 @@ jwt:
   secret: 8fK2#kD9@aL!xP0qZrT7vW3yH6mN1sBZ    #签名密钥
   expiration-ms: 604800000         #过期时间ms
 
-# 微信小程序 (占位，需替换为真实值)
+# 微信小程序
 wechat:
-  appid: your_appid
-  secret: your_secret
+  appid: wxd59d9e3110ab847e
+  secret: 9ddc73fe8547ad9cf5687212ad64ff1d
 
 # 文件上传路径
 upload:

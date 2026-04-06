@@ -1,4 +1,5 @@
 const { get, post } = require('../../utils/request')
+const { resolveItemImages, resolveImageUrl } = require('../../utils/config')
 
 Page({
   data: {
@@ -16,13 +17,17 @@ Page({
 
   loadDetail() {
     get(`/api/items/${this.data.id}`).then(res => {
-      this.setData({ item: res.data })
+      this.setData({ item: resolveItemImages(res.data) })
     }).catch(() => wx.showToast({ title: '加载失败', icon: 'none' }))
   },
 
   loadComments() {
     get(`/api/items/${this.data.id}/comments`).then(res => {
-      this.setData({ comments: res.data || [] })
+      const list = (res.data || []).map(c => {
+        if (c.userAvatarUrl) c.userAvatarUrl = resolveImageUrl(c.userAvatarUrl)
+        return c
+      })
+      this.setData({ comments: list })
     })
   },
 

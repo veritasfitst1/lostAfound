@@ -1,12 +1,101 @@
+.page-index {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+.index-header {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+  background: #f5f6fa;
+}
+
 .search-bar {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
   padding: 16rpx 0;
 }
 
-.search-input {
+.search-left {
+  flex: 1;
+  display: flex;
+  align-items: center;
   background: #fff;
   border-radius: 32rpx;
-  padding: 20rpx 32rpx;
+  padding: 0 24rpx;
+  height: 76rpx;
+}
+
+.search-icon {
+  width: 32rpx;
+  height: 32rpx;
+  opacity: 0.6;
+}
+
+.search-input {
+  flex: 1;
   font-size: 28rpx;
+}
+
+.search-action {
+  width: 56rpx;
+  height: 56rpx;
+  margin-left: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-camera {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.camera-icon {
+  width: 34rpx;
+  height: 34rpx;
+  opacity: 0.8;
+}
+
+.ai-search-hint {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  background: #fff;
+  border-radius: 12rpx;
+  padding: 12rpx 16rpx;
+  margin-bottom: 12rpx;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.ai-tag {
+  background: #1989fa;
+  color: #fff;
+  border-radius: 8rpx;
+  padding: 2rpx 10rpx;
+  font-size: 20rpx;
+}
+
+.ai-text {
+  flex: 1;
+}
+
+.ai-clear {
+  width: 36rpx;
+  height: 36rpx;
+  line-height: 36rpx;
+  text-align: center;
+  border-radius: 50%;
+  background: #f5f6fa;
 }
 
 .filter-bar {
@@ -45,7 +134,10 @@
 }
 
 .item-list {
-  height: calc(100vh - 280rpx);
+  flex: 1;
+  min-height: 0;
+  height: 0;
+  background: #f5f6fa;
 }
 
 .item-card {
