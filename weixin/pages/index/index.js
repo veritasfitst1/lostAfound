@@ -15,7 +15,6 @@ Page({
     showFilter: false,
     aiSearching: false,
     aiKeywords: '',
-    aiMatchedCategoryId: null,
     scrollIntoView: ''
   },
 
@@ -28,14 +27,20 @@ Page({
     const imageSearchResult = wx.getStorageSync('imageSearchResult')
     if (imageSearchResult && imageSearchResult.ts) {
       wx.removeStorageSync('imageSearchResult')
-      const nextCategoryId = imageSearchResult.suggestedCategoryId || null
       const keywords = (imageSearchResult.keywords || []).slice(0, 3).join('、')
+      const list = (imageSearchResult.items || []).map(resolveItemImages)
       this.setData({
         aiSearching: false,
         aiKeywords: keywords || (imageSearchResult.success ? '识别完成' : ''),
-        aiMatchedCategoryId: nextCategoryId,
-        categoryId: nextCategoryId
-      }, () => this.loadItems(true, true))
+        items: list,
+        loading: false,
+        page: 1,
+        hasMore: false
+      }, () => {
+        this.setData({ scrollIntoView: '' }, () => {
+          setTimeout(() => this.setData({ scrollIntoView: 'result-top' }), 30)
+        })
+      })
       return
     }
     this.loadItems(true)
@@ -117,8 +122,7 @@ Page({
     this.setData({
       aiKeywords: '',
       aiSearching: false,
-      categoryId: this.data.categoryId === this.data.aiMatchedCategoryId ? null : this.data.categoryId,
-      aiMatchedCategoryId: null
+      items: []
     }, () => this.loadItems(true))
   }
 })

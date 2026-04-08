@@ -38,12 +38,13 @@ Page({
               this.setData({ loading: false })
               const data = resp.data || {}
               const keywords = data.keywords || []
-              const suggestedCategoryId = data.suggestedCategoryId || null
+              const items = data.items || []
               wx.setStorageSync('imageSearchResult', {
                 ts: Date.now(),
                 success: true,
                 keywords: keywords,
-                suggestedCategoryId: suggestedCategoryId
+                items: items,
+                total: data.total || 0
               })
               wx.showToast({ title: '识别成功', icon: 'success' })
               setTimeout(() => {

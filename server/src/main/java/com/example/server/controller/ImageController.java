@@ -21,7 +21,7 @@ public class ImageController {
     }
 
     @PostMapping("/recognize")
-    public CommonResponse<Map<String, Object>> recognize(@RequestBody Map<String, String> body) {
+    public CommonResponse<Map<String, Object>> recognize(@RequestBody Map<String, String> body) {  //传入json请求
         return CommonResponse.ok(imageService.recognize(body.get("imageUrl")));
     }
 }

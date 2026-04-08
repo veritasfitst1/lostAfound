@@ -1,8 +1,8 @@
 package com.example.server.service;
 
-import com.example.server.entity.ItemCategory;
+import com.example.server.dto.ItemVO;
+import com.example.server.dto.PageResponse;
 import com.example.server.exception.BusinessException;
-import com.example.server.repository.ItemCategoryRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -12,8 +12,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -22,16 +24,16 @@ public class ImageService {
     private final Path uploadPath;
     private final String urlPrefix;
     private final BaiduAiService baiduAiService;
-    private final ItemCategoryRepository categoryRepository;
+    private final ItemService itemService;
 
     public ImageService(@Value("${upload.path:./uploads}") String path,
                         @Value("${upload.url-prefix:/uploads}") String urlPrefix,
                         BaiduAiService baiduAiService,
-                        ItemCategoryRepository categoryRepository) {
+                        ItemService itemService) {
         this.uploadPath = Paths.get(path).toAbsolutePath();
         this.urlPrefix = urlPrefix.endsWith("/") ? urlPrefix.substring(0, urlPrefix.length() - 1) : urlPrefix;
         this.baiduAiService = baiduAiService;
-        this.categoryRepository = categoryRepository;
+        this.itemService = itemService;
         try {
             Files.createDirectories(this.uploadPath);
         } catch (IOException e) {
@@ -62,7 +64,7 @@ public class ImageService {
 
 
     /**
-     * 图片识别：读取已上传的图片 → 调百度 AI → 关键词匹配数据库分类 → 返回结果
+     * 图片识别：读取已上传的图片 → 调百度 AI → 使用关键词进行物品筛选 → 返回结果
      */
     public Map<String, Object> recognize(String imageUrl) {
         Path imagePath = uploadPath.resolve(imageUrl.replace(urlPrefix + "/", ""));  //文件路径-》本地路径
@@ -75,34 +77,29 @@ public class ImageService {
         }
 
         List<String> keywords = baiduAiService.recognize(imageBytes);
-        log.info("百度AI识别结果: {}", keywords);
+        //log.info("百度AI识别结果: {}", keywords);
 
-        Long suggestedCategoryId = matchCategory(keywords);
+        // 组合成搜索用的 keyword（取前 3 个，空格拼接）
+        String searchKeyword = "";
+        if (keywords != null && !keywords.isEmpty()) {
+            int limit = Math.min(3, keywords.size());
+            searchKeyword = String.join(" ", keywords.subList(0, limit));
+        }
+
+        // 复用已有搜索函数：按 title/description/location/categoryName 模糊匹配
+        PageResponse<ItemVO> page = itemService.list(
+                searchKeyword.isBlank() ? null : searchKeyword,
+                null,
+                null,
+                null,
+                0,
+                20
+        );
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("keywords", keywords);
-        result.put("suggestedCategoryId", suggestedCategoryId);
+        result.put("items", page.getContent());
+        result.put("total", page.getTotal());
         return result;
-    }
-
-    /**
-     * 将百度识别的关键词与数据库分类名进行模糊匹配，返回最佳匹配的分类 ID
-     */
-    private Long matchCategory(List<String> keywords) {
-        if (keywords == null || keywords.isEmpty()) return null;
-        List<ItemCategory> categories = categoryRepository.findAllByOrderBySortOrderAsc();
-        String joined = keywords.stream().map(String::toLowerCase).collect(Collectors.joining(" "));
-        for (ItemCategory cat : categories) {
-            String catName = cat.getName().toLowerCase();
-            if (joined.contains(catName) || catName.contains(joined)) {
-                return cat.getId();
-            }
-            for (String kw : keywords) {
-                if (kw.toLowerCase().contains(catName) || catName.contains(kw.toLowerCase())) {
-                    return cat.getId();
-                }
-            }
-        }
-        return null;
     }
 }
