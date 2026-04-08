@@ -8,7 +8,7 @@ const routes = [
     component: () => import('../layout/AdminLayout.vue'),
     meta: { requiresAuth: true },
     children: [
-      { path: '', name: 'Dashboard', component: () => import('../views/Dashboard.vue'), meta: { title: '仪表盘' } },
+      { path: '', name: 'AdminStats', component: () => import('../views/Dashboard.vue'), meta: { title: '统计信息' } },
       { path: 'users', name: 'UserManage', component: () => import('../views/UserManage.vue'), meta: { title: '用户管理' } },
       { path: 'items', name: 'ItemManage', component: () => import('../views/ItemManage.vue'), meta: { title: '物品管理' } },
       { path: 'categories', name: 'CategoryManage', component: () => import('../views/CategoryManage.vue'), meta: { title: '分类管理' } },

@@ -5,7 +5,7 @@
       <el-menu :default-active="$route.path" router>
         <el-menu-item index="/">
           <el-icon><DataLine /></el-icon>
-          <span>仪表盘</span>
+          <span>统计信息</span>
         </el-menu-item>
         <el-menu-item index="/users">
           <el-icon><User /></el-icon>

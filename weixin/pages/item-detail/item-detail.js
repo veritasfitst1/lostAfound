@@ -45,6 +45,42 @@ Page({
     }).catch(err => wx.showToast({ title: err.message || '发表失败', icon: 'none' }))
   },
 
+  onReport() {
+    const item = this.data.item
+    if (!item) return
+    wx.showActionSheet({
+      itemList: ['举报该物品', '举报该用户', '举报物品和用户'],
+      success: (res) => {
+        const tapIndex = res.tapIndex
+        const params = { reason: '' }
+        if (tapIndex === 0) {
+          params.reportedItemId = item.id
+        } else if (tapIndex === 1) {
+          params.reportedUserId = item.userId
+        } else {
+          params.reportedItemId = item.id
+          params.reportedUserId = item.userId
+        }
+        wx.showModal({
+          title: '举报理由',
+          editable: true,
+          placeholderText: '请输入举报理由',
+          success: (r) => {
+            if (!r.confirm || !r.content || !r.content.trim()) {
+              return wx.showToast({ title: '请输入举报理由', icon: 'none' })
+            }
+            params.reason = r.content.trim()
+            post('/api/reports', params).then(() => {
+              wx.showToast({ title: '举报已提交' })
+            }).catch(err => {
+              wx.showToast({ title: err.message || '举报失败', icon: 'none' })
+            })
+          }
+        })
+      }
+    })
+  },
+
   toChat() {
     const item = this.data.item
     if (!item) return

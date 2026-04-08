@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+
     //获取个人信息
     @GetMapping("/me")
     public CommonResponse<UserVO> getProfile(@RequestAttribute Long userId) {
@@ -27,6 +28,7 @@ public class UserController {
                 req.getUsername(), req.getPassword()));
     }
 
+    //绑定微信
     @PostMapping("/bind-wx")
     public CommonResponse<UserVO> bindWx(@RequestAttribute Long userId, @Valid @RequestBody BindWxRequest req) {
         return CommonResponse.ok(userService.bindWx(userId, req.getCode()));

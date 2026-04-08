@@ -17,7 +17,8 @@ public class ItemCategoryController {
     //小程序端用，总的分类
     private final ItemCategoryService categoryService;
 
-    @GetMapping
+    //主页面加载时自动请求  点击分类按钮可以看到
+    @GetMapping   //  /api/categories
     public CommonResponse<List<ItemCategory>> list() {
         return CommonResponse.ok(categoryService.listAll());
     }

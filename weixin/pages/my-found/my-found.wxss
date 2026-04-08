@@ -25,12 +25,39 @@
 .status-2 { color: #999; }
 .status-3 { color: #ed6a0c; }
 
-.btn-revoke {
-  padding: 16rpx 32rpx;
+.btn-group {
+  display: flex;
+  flex-direction: row;
+  gap: 12rpx;
+  flex-shrink: 0;
+}
+
+.btn-found,
+.btn-revoke,
+.btn-undo {
+  margin: 0;
+  padding: 14rpx 0;
   font-size: 26rpx;
+  line-height: 1.4;
+  border-radius: 12rpx;
+  width: 130rpx;
+  text-align: center;
+}
+
+.btn-found {
+  color: #07c160;
+  background: #e8f8ee;
+}
+
+.btn-revoke {
   color: #ed6a0c;
   background: #fff3f0;
-  border-radius: 16rpx;
+}
+
+.btn-undo {
+  color: #1989fa;
+  background: #e8f3ff;
+  flex-shrink: 0;
 }
 
 .empty-state {

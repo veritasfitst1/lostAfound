@@ -53,3 +53,6 @@
 {"sessionId":"5795f3","hypothesisId":"A","location":"AuthService.adminLogin","message":"adminLogin called","data":{"username":"admin"},"timestamp":1775468980242}
 {"sessionId":"5795f3","hypothesisId":"A","location":"AuthService.adminLogin","message":"password check","data":{"role":"ADMIN","status":0,"pwMatch":true,"storedHash":"$2a$10$10F..."},"timestamp":1775468980368}
 {"sessionId":"5795f3","hypothesisId":"B","location":"AuthService.adminLogin","message":"login success","data":{"tokenLen":145},"timestamp":1775468980544}
+{"sessionId":"5795f3","hypothesisId":"A","location":"AuthService.adminLogin","message":"adminLogin called","data":{"username":"admin"},"timestamp":1775545278020}
+{"sessionId":"5795f3","hypothesisId":"A","location":"AuthService.adminLogin","message":"password check","data":{"role":"ADMIN","status":0,"pwMatch":true,"storedHash":"$2a$10$10F..."},"timestamp":1775545278146}
+{"sessionId":"5795f3","hypothesisId":"B","location":"AuthService.adminLogin","message":"login success","data":{"tokenLen":145},"timestamp":1775545278219}

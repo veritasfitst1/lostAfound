@@ -19,6 +19,7 @@ public class ItemCategoryService {
     private final ItemCategoryRepository categoryRepository;
     private final ItemRepository itemRepository;
 
+
     //查询所有分类
     public List<ItemCategory> listAll() {
         return categoryRepository.findAllByOrderBySortOrderAsc();

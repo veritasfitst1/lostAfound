@@ -18,11 +18,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final WechatService wechatService;
+
     //获取个人资料
     public UserVO getProfile(Long userId) {
         User user = findById(userId);
         return toUserVO(user);
     }
+
     //更新个人资料
     @Transactional
     public UserVO updateProfile(Long userId, String nickname, String avatarUrl, String phone,
@@ -58,15 +60,15 @@ public class UserService {
         return toUserVO(userRepository.save(user));
     }
 
-    /** 将当前登录用户与微信 openid 绑定（同一 openid 仅能绑定一个账号） */
+    // 将当前登录用户与微信 openid 绑定（同一 openid 仅能绑定一个账号）
     @Transactional
     public UserVO bindWx(Long userId, String code) {
         String openid = wechatService.getOpenid(code);
         User current = findById(userId);
-        if (current.getOpenid() != null && !current.getOpenid().isBlank()) {
+        if (current.getOpenid() != null && !current.getOpenid().isBlank()) { //该账号已绑定微信
             throw new BusinessException(400, "已绑定微信");
         }
-        userRepository.findByOpenid(openid)
+        userRepository.findByOpenid(openid)  //该微信已被绑定
                 .filter(other -> !other.getId().equals(userId))
                 .ifPresent(other -> {
                     throw new BusinessException(400, "该微信已被其他账号绑定");
@@ -74,17 +76,17 @@ public class UserService {
         current.setOpenid(openid);
         return toUserVO(userRepository.save(current));
     }
+
     //通过用户id寻找用户
     public User findById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(404, "用户不存在"));
     }
 
-    /** 账号 status=1 封禁时禁止发布、留言、发私信等 */
+    // 账号 status=1 封禁时禁止发布、留言、发私信等
     public void assertNotBanned(Long userId) {
         assertNotBanned(findById(userId));
     }
-
     public void assertNotBanned(User user) {
         if (user.getStatus() != null && user.getStatus() == 1) {
             throw new BusinessException(403, "账号已被封禁，无法使用该功能");

@@ -1,7 +1,7 @@
 package com.example.server.exception;
 
 public class BusinessException extends RuntimeException {
-    //异常码，不可修改
+    //异常码
     private final int code;
 
     public BusinessException(String message) {

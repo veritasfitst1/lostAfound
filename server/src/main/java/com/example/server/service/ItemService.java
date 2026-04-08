@@ -48,6 +48,7 @@ public class ItemService {
     private static final int STATUS_FOUND = 1;  //已找到
     private static final int STATUS_CANCELLED = 2;  //取消
     private static final int STATUS_EXPIRED = 3; //过期
+
     // 轻量同义词词典：最小实现，优先覆盖常见失物词
     private static final Map<String, List<String>> QUERY_SYNONYM_MAP = new HashMap<>();
 
@@ -72,7 +73,7 @@ public class ItemService {
     //创建物品信息
     @Transactional
     public ItemVO create(Long userId, ItemCreateRequest req) {
-        userService.assertNotBanned(userId);
+        userService.assertNotBanned(userId);   //未被封禁才可以发布
         User user = userService.findById(userId); //查用户身份
         ItemCategory category = categoryRepository.findById(req.getCategoryId())   //查分类是否对
                 .orElseThrow(() -> new BusinessException(400, "分类不存在"));
@@ -80,7 +81,7 @@ public class ItemService {
         Item item = Item.builder()
                 .user(user)
                 .category(category)
-                .type(req.getType())
+                .type(req.getType())  //失物or招领
                 .title(req.getTitle())
                 .description(req.getDescription())
                 .location(req.getLocation())
@@ -93,7 +94,7 @@ public class ItemService {
         return toItemVO(item, 0);
     }
 
-    //查询功能  根据传的信息筛选
+    //查询筛选功能  根据传的信息筛选
     //keyword：输入的关键字 type：0丢失 1招领  categoryId：分类id status状态
     public PageResponse<ItemVO> list(String keyword, Long categoryId, Integer type, Integer status, int page, int size) {
         List<String> expandedKeywords = expandKeywords(keyword);
@@ -143,9 +144,7 @@ public class ItemService {
         return toItemVO(item, cc);
     }
 
-    /**
-     * 前台查看详情：已过期(status=3)仅发布者本人可见，其他人视为不存在
-     */
+    //前台查看详情：已过期(status=3)仅发布者本人可见，其他人视为不存在
     public ItemVO getByIdForViewer(Long id, Long viewerUserId) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(404, "物品不存在"));
@@ -161,7 +160,7 @@ public class ItemService {
     //修改物品状态
     @Transactional
     public ItemVO updateStatus(Long itemId, Long userId, Integer newStatus) {
-        userService.assertNotBanned(userId);
+        userService.assertNotBanned(userId);  //账号封禁不允许操作
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new BusinessException(404, "物品不存在"));
         if (!item.getUser().getId().equals(userId)) {
@@ -215,10 +214,11 @@ public class ItemService {
                 .build();
     }
 
+    //将输入的关键字拓展成同义词，加大查询范围
     private List<String> expandKeywords(String keyword) {
-        if (!StringUtils.hasText(keyword)) return List.of();
-        String k = keyword.trim().toLowerCase();
-        LinkedHashSet<String> expanded = new LinkedHashSet<>();
+        if (!StringUtils.hasText(keyword)) return List.of();   //keyword为null返回空列表
+        String k = keyword.trim().toLowerCase();   //去空格转小写
+        LinkedHashSet<String> expanded = new LinkedHashSet<>();  //结果去重 + 保序
         expanded.add(k);
         for (Map.Entry<String, List<String>> e : QUERY_SYNONYM_MAP.entrySet()) {
             String key = e.getKey();
@@ -288,7 +288,7 @@ public class ItemService {
         return set;
     }
 
-    /** 管理员编辑物品内容 */
+    // 管理员编辑物品内容
     @Transactional(readOnly = false)
     public ItemVO adminUpdate(Long itemId, String title, String description, String location, String contact) {
         Item item = itemRepository.findById(itemId)
@@ -301,7 +301,7 @@ public class ItemService {
         return toItemVO(item, commentRepository.findByItemIdOrderByCreatedAtAsc(item.getId()).size());
     }
 
-    /** 管理员修改物品状态（含恢复过期等） */
+    //管理员修改物品状态（含恢复过期等）
     @Transactional(readOnly = false)
     public ItemVO adminUpdateStatus(Long itemId, Integer newStatus) {
         Item item = itemRepository.findById(itemId)
@@ -319,6 +319,7 @@ public class ItemService {
         if (!isAdmin && !item.getUser().getId().equals(operatorId)) {
             throw new BusinessException(403, "无权操作");
         }
+        itemRepository.delete(item);
         itemRepository.delete(item);
     }
 

@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class AdminLoginRequest {
-    //前端登录接口请求体 管理员端 接受前端信息
+    //接收前端登录接口请求 管理员端
 
     @NotBlank(message = "用户名不能为空")
     private String username;

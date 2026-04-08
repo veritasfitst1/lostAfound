@@ -35,16 +35,20 @@ Page({
               return
             }
             post('/api/image/recognize', { imageUrl }).then(resp => {
+              this.setData({ loading: false })
               const data = resp.data || {}
+              const keywords = data.keywords || []
+              const suggestedCategoryId = data.suggestedCategoryId || null
               wx.setStorageSync('imageSearchResult', {
                 ts: Date.now(),
                 success: true,
-                suggestedCategoryId: data.suggestedCategoryId || null
+                keywords: keywords,
+                suggestedCategoryId: suggestedCategoryId
               })
               wx.showToast({ title: '识别成功', icon: 'success' })
               setTimeout(() => {
                 wx.switchTab({ url: '/pages/index/index' })
-              }, 400)
+              }, 800)
             }).catch(() => {
               this.setData({ loading: false })
               wx.showToast({ title: '识别失败', icon: 'none' })

@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/image")
@@ -21,7 +21,7 @@ public class ImageController {
     }
 
     @PostMapping("/recognize")
-    public CommonResponse<List<String>> recognize(@RequestParam("imageUrl") String imageUrl) {
-        return CommonResponse.ok(imageService.recognize(imageUrl));
+    public CommonResponse<Map<String, Object>> recognize(@RequestBody Map<String, String> body) {
+        return CommonResponse.ok(imageService.recognize(body.get("imageUrl")));
     }
 }

@@ -29,9 +29,10 @@ Page({
     if (imageSearchResult && imageSearchResult.ts) {
       wx.removeStorageSync('imageSearchResult')
       const nextCategoryId = imageSearchResult.suggestedCategoryId || null
+      const keywords = (imageSearchResult.keywords || []).slice(0, 3).join('、')
       this.setData({
         aiSearching: false,
-        aiKeywords: imageSearchResult.success ? '1' : '',
+        aiKeywords: keywords || (imageSearchResult.success ? '识别完成' : ''),
         aiMatchedCategoryId: nextCategoryId,
         categoryId: nextCategoryId
       }, () => this.loadItems(true, true))

@@ -13,13 +13,13 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AdminStatsVO {
-
+    //管理员端仪表盘信息
     private long totalUsers;
     private long totalItems;
     private long lostCount;
     private long foundCount;
     private long todayItems;
-    private long pendingReports;
-    private List<Map<String, Object>> categoryDistribution;
-    private List<Map<String, Object>> recentTrend;
+    private long pendingReports;  //待处理举报
+    private List<Map<String, Object>> categoryDistribution;   //分类分布
+    private List<Map<String, Object>> recentTrend;   //最近趋势
 }

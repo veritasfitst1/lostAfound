@@ -22,7 +22,10 @@
           <image class="pub-avatar" src="{{item.userAvatarUrl || '/assets/icons/user.png'}}" mode="aspectFill"/>
           <view>{{item.userNickname}}</view>
         </view>
-        <button class="btn-contact" bindtap="toChat">联系TA</button>
+        <view class="pub-actions">
+          <view class="btn-contact" bindtap="toChat">联系TA</view>
+          <view class="btn-report" bindtap="onReport">举报</view>
+        </view>
       </view>
     </view>
   </view>
@@ -30,7 +33,7 @@
     <view class="comment-title">留言 ({{comments.length}})</view>
     <view class="comment-input-bar flex">
       <input class="comment-input" placeholder="发表留言..." value="{{commentContent}}" bindinput="onCommentInput"/>
-      <button class="btn-comment" bindtap="submitComment">发送</button>
+      <view class="btn-comment" bindtap="submitComment">发送</view>
     </view>
     <view class="comment-list">
       <view class="comment-item" wx:for="{{comments}}" wx:key="id">

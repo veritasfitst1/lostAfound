@@ -15,8 +15,8 @@ import java.net.URI;
 @RequiredArgsConstructor
 public class WechatService {
 
-    private final RestTemplate restTemplate;
-    private final ObjectMapper objectMapper;
+    private final RestTemplate restTemplate; //给微信服务器发送http请求
+    private final ObjectMapper objectMapper; //解析json
 
     @Value("${wechat.appid}")
     private String appId;
@@ -24,15 +24,13 @@ public class WechatService {
     @Value("${wechat.secret}")
     private String secret;
 
+
+    //将前端传来的code 转成 数据库对应的 openid
     public String getOpenid(String code) {
         if (code == null || code.isBlank()) {
             throw new BusinessException(400, "code 不能为空");
         }
-        if ("your_appid".equals(appId) || "your_secret".equals(secret)
-                || appId == null || appId.isBlank() || secret == null || secret.isBlank()) {
-            throw new BusinessException(500, "请在 application.yml 中配置 wechat.appid 与 wechat.secret");
-        }
-
+        //构造微信官方请求url
         URI uri = UriComponentsBuilder.fromUriString("https://api.weixin.qq.com/sns/jscode2session")
                 .queryParam("appid", appId)
                 .queryParam("secret", secret)
@@ -41,9 +39,10 @@ public class WechatService {
                 .build()
                 .toUri();
 
-        String body;
+        String body;  //接受返回的json
+
         try {
-            body = restTemplate.getForObject(uri, String.class);
+            body = restTemplate.getForObject(uri, String.class);  //发送请回，接收json
         } catch (Exception e) {
             throw new BusinessException(502, "请求微信服务失败");
         }
@@ -52,12 +51,12 @@ public class WechatService {
         }
 
         try {
-            JsonNode root = objectMapper.readTree(body);
-            if (root.has("errcode") && root.get("errcode").asInt() != 0) {
+            JsonNode root = objectMapper.readTree(body);  //解析json
+            if (root.has("errcode") && root.get("errcode").asInt() != 0) {  //失败json会包含errcode，报错
                 String msg = root.path("errmsg").asText("微信登录失败");
                 throw new BusinessException(400, msg);
             }
-            JsonNode openidNode = root.get("openid");
+            JsonNode openidNode = root.get("openid");    //成功则获取openid
             if (openidNode == null || openidNode.asText().isBlank()) {
                 throw new BusinessException(400, "未能获取微信身份");
             }

@@ -14,18 +14,20 @@ import java.io.PrintWriter;
 
 @Service
 @RequiredArgsConstructor
-//用于用户登录的核心类 负责处理前端请求 ， 给前端生成authresponse类
+//用户登录    负责处理前端请求 ， 给前端生成authresponse类
 public class AuthService {
 
     private final UserRepository userRepository; //user数据库操作
-    private final JwtUtil jwtUtil;     //token
+    private final JwtUtil jwtUtil;     //产生token
     private final PasswordEncoder passwordEncoder;  //密码加密
     private final WechatService wechatService;
 
-    /** 微信一键登录：用 code 换 openid，已存在则登录，否则自动创建用户 */
+    //微信一键登录：用 code 得到 openid，已存在则登录，否则自动创建用户
     public AuthResponse wxLogin(String code) {
+        //先由code到微信服务器获取openid
         String openid = wechatService.getOpenid(code);
-        debugLog("{\"sessionId\":\"5795f3\",\"hypothesisId\":\"WX\",\"location\":\"AuthService.wxLogin\",\"message\":\"wxLogin\",\"data\":{\"openid\":\"" + openid + "\"},\"timestamp\":" + System.currentTimeMillis() + "}");
+        //debugLog("{\"sessionId\":\"5795f3\",\"hypothesisId\":\"WX\",\"location\":\"AuthService.wxLogin\",\"message\":\"wxLogin\",\"data\":{\"openid\":\"" + openid + "\"},\"timestamp\":" + System.currentTimeMillis() + "}");
+        //创建用户或寻找用户
         User user = userRepository.findByOpenid(openid)
                 .orElseGet(() -> userRepository.save(User.builder()
                         .openid(openid)
@@ -48,13 +50,13 @@ public class AuthService {
     //管理员登录
     public AuthResponse adminLogin(String username, String password) {
         //  log
-        debugLog("{\"sessionId\":\"5795f3\",\"hypothesisId\":\"A\",\"location\":\"AuthService.adminLogin\",\"message\":\"adminLogin called\",\"data\":{\"username\":\"" + username + "\"},\"timestamp\":" + System.currentTimeMillis() + "}");
+        //debugLog("{\"sessionId\":\"5795f3\",\"hypothesisId\":\"A\",\"location\":\"AuthService.adminLogin\",\"message\":\"adminLogin called\",\"data\":{\"username\":\"" + username + "\"},\"timestamp\":" + System.currentTimeMillis() + "}");
 
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BusinessException(401, "用户名或密码错误"));
         //  log
         boolean pwMatch = passwordEncoder.matches(password, user.getPassword());
-        debugLog("{\"sessionId\":\"5795f3\",\"hypothesisId\":\"A\",\"location\":\"AuthService.adminLogin\",\"message\":\"password check\",\"data\":{\"role\":\"" + user.getRole() + "\",\"status\":" + user.getStatus() + ",\"pwMatch\":" + pwMatch + ",\"storedHash\":\"" + (user.getPassword() != null ? user.getPassword().substring(0, 10) : "null") + "...\"},\"timestamp\":" + System.currentTimeMillis() + "}");
+        //debugLog("{\"sessionId\":\"5795f3\",\"hypothesisId\":\"A\",\"location\":\"AuthService.adminLogin\",\"message\":\"password check\",\"data\":{\"role\":\"" + user.getRole() + "\",\"status\":" + user.getStatus() + ",\"pwMatch\":" + pwMatch + ",\"storedHash\":\"" + (user.getPassword() != null ? user.getPassword().substring(0, 10) : "null") + "...\"},\"timestamp\":" + System.currentTimeMillis() + "}");
 
         if (!"ADMIN".equals(user.getRole())) {
             throw new BusinessException(403, "非管理员账号");
@@ -67,7 +69,7 @@ public class AuthService {
         }
         String token = jwtUtil.generateToken(user.getId(), user.getRole());
         // log
-        debugLog("{\"sessionId\":\"5795f3\",\"hypothesisId\":\"B\",\"location\":\"AuthService.adminLogin\",\"message\":\"login success\",\"data\":{\"tokenLen\":" + token.length() + "},\"timestamp\":" + System.currentTimeMillis() + "}");
+        //debugLog("{\"sessionId\":\"5795f3\",\"hypothesisId\":\"B\",\"location\":\"AuthService.adminLogin\",\"message\":\"login success\",\"data\":{\"tokenLen\":" + token.length() + "},\"timestamp\":" + System.currentTimeMillis() + "}");
 
         return AuthResponse.builder()
                 .token(token)
@@ -75,17 +77,12 @@ public class AuthService {
                 .build();
     }
 
+    //使用用户名密码登录
     public AuthResponse userLogin(String username, String password) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BusinessException(401, "用户名或密码错误"));
-        if (user.getPassword() == null || user.getPassword().isBlank()) {
-            throw new BusinessException(400, "该账号未设置密码，请使用微信登录或在个人中心设置密码");
-        }
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new BusinessException(401, "用户名或密码错误");
-        }
-        if (user.getStatus() == 1) {
-            throw new BusinessException(403, "账号已被封禁");
         }
         String token = jwtUtil.generateToken(user.getId(), user.getRole());
         return AuthResponse.builder()
@@ -94,6 +91,7 @@ public class AuthService {
                 .build();
     }
 
+    //微信注册用户
     public AuthResponse register(String username, String password, String nickname) {
         if (userRepository.findByUsername(username).isPresent()) {
             throw new BusinessException(400, "用户名已存在");
@@ -113,6 +111,7 @@ public class AuthService {
                 .build();
     }
 
+    //debug用
     private void debugLog(String json) {
         try (PrintWriter pw = new PrintWriter(new FileWriter("../debug-5795f3.log", true))) {
             pw.println(json);

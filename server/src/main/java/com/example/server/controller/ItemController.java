@@ -13,31 +13,31 @@ public class ItemController {
 
     private final ItemService itemService;
 
-    //发布物品信息
+    //发布物品信息  /api/items
     @PostMapping
     public CommonResponse<ItemVO> create(@RequestAttribute Long userId, @Valid @RequestBody ItemCreateRequest req) {
         return CommonResponse.ok(itemService.create(userId, req));
     }
 
-    //模糊查找 参数可选
+    //查找or筛选 根据搜索栏或顶部栏选择 /api/items
     @GetMapping
     public CommonResponse<PageResponse<ItemVO>> list(
-            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String keyword,   //参数可不传
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) Integer type,
             @RequestParam(required = false) Integer status,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "0") int page,      //前端没传就默认值
             @RequestParam(defaultValue = "10") int size) {
         return CommonResponse.ok(itemService.list(keyword, categoryId, type, status, page, size));
     }
 
-    //查询物品信息（已过期仅发布者可见）
+    //查看物品详细信息 主页/我的发布
     @GetMapping("/{id}")
     public CommonResponse<ItemVO> getById(@RequestAttribute Long userId, @PathVariable Long id) {
         return CommonResponse.ok(itemService.getByIdForViewer(id, userId));
     }
 
-    //更改我发布的物品状态
+    //更改物品状态   已找回/撤销/取消撤销
     @PutMapping("/{id}/status")
     public CommonResponse<ItemVO> updateStatus(@RequestAttribute Long userId, @PathVariable Long id, @RequestParam Integer status) {
         return CommonResponse.ok(itemService.updateStatus(id, userId, status));

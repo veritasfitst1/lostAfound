@@ -15,7 +15,7 @@ public class ReportController {
 
     private final ReportService reportService;
 
-    //创建举报信息
+    //提交举报信息
     @PostMapping
     public CommonResponse<ReportVO> create(@RequestAttribute Long userId, @Valid @RequestBody ReportCreateRequest req) {
         return CommonResponse.ok(reportService.create(userId, req.getReportedUserId(), req.getReportedItemId(), req.getReason()));

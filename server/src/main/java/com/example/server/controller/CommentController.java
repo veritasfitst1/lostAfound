@@ -17,7 +17,7 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    //获取评论
+    //获得评论
     @GetMapping
     public CommonResponse<List<CommentVO>> list(@RequestAttribute Long userId, @PathVariable Long itemId) {
         return CommonResponse.ok(commentService.listByItemId(itemId, userId));

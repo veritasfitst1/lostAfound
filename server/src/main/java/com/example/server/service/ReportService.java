@@ -32,15 +32,15 @@ public class ReportService {
     //创建举报信息
     @Transactional(readOnly = false)
     public ReportVO create(Long reporterId, Long reportedUserId, Long reportedItemId, String reason) {
-        User reporter = userService.findById(reporterId);
+        User reporter = userService.findById(reporterId);    //举报者 reporter
         if (reportedUserId == null && reportedItemId == null) {
             throw new BusinessException(400, "必须举报用户或物品");
         }
         if (reportedUserId != null) {
-            userService.findById(reportedUserId);
+            userService.findById(reportedUserId);    //被举报人
         }
         if (reportedItemId != null) {
-            itemRepository.findById(reportedItemId).orElseThrow(() -> new BusinessException(404, "物品不存在"));
+            itemRepository.findById(reportedItemId).orElseThrow(() -> new BusinessException(404, "物品不存在"));   //被举报物品
         }
 
         Report report = Report.builder()
@@ -73,46 +73,46 @@ public class ReportService {
     public ReportVO approve(Long reportId, Long adminId, String adminNote) {
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new BusinessException(404, "举报不存在"));
-        boolean wasPending = report.getStatus() == STATUS_PENDING;
-        if (wasPending) {
-            applyApproveSideEffects(report);
+        boolean wasPending = report.getStatus() == STATUS_PENDING;   //是否从 「待审核」变为「通过」
+        if (wasPending) {    //只有从「待审核」变为「通过」时才执行处罚（下架物品 + 封禁用户）。如果举报已经是通过/驳回状态被再次调用，跳过处罚，避免重复执行。
+            applyApproveSideEffects(report);  //下架物品 + 封禁用户
         }
-        report.setStatus(STATUS_APPROVED);
-        report.setAdminNote(adminNote);
+        report.setStatus(STATUS_APPROVED);  //举报已通过
+        report.setAdminNote(adminNote);  //通过时填写的备注
         report = reportRepository.save(report);
         return toReportVO(report);
     }
 
-    /** 先物品后用户；不切换管理员账号状态 */
+    // 下架物品 + 封禁用户
     private void applyApproveSideEffects(Report report) {
         if (report.getReportedItem() != null) {
             Long itemId = report.getReportedItem().getId();
             itemRepository.findById(itemId).ifPresent(item -> {
-                item.setStatus(3);
+                item.setStatus(3);    //直接设为已过期 当成被删除
                 itemRepository.save(item);
             });
         }
         if (report.getReportedUser() != null) {
             User u = userRepository.findById(report.getReportedUser().getId()).orElse(null);
             if (u != null && !"ADMIN".equals(u.getRole())) {
-                u.setStatus(u.getStatus() != null && u.getStatus() == 0 ? 1 : 0);
+                u.setStatus(u.getStatus() != null && u.getStatus() == 0 ? 1 : 0);  //approve 和 revoke 都走这段逻辑：通过举报时封禁用户（0→1），撤销举报时解封用户（1→0）
                 userRepository.save(u);
             }
         }
     }
 
-    //拒绝举报
+    //驳回举报
     @Transactional(readOnly = false)
     public ReportVO reject(Long reportId, Long adminId, String adminNote) {
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new BusinessException(404, "举报不存在"));
-        report.setStatus(STATUS_REJECTED);
+        report.setStatus(STATUS_REJECTED);  //待审核-》驳回
         report.setAdminNote(adminNote);
         report = reportRepository.save(report);
         return toReportVO(report);
     }
 
-    /** 撤销举报：将已通过/已驳回的举报重置为待审核，并回退通过时的副作用 */
+    // 撤销之前的操作
     @Transactional(readOnly = false)
     public ReportVO revoke(Long reportId) {
         Report report = reportRepository.findById(reportId)
@@ -121,7 +121,7 @@ public class ReportService {
             throw new BusinessException(400, "该举报已是待审核状态");
         }
         if (report.getStatus() == STATUS_APPROVED) {
-            revokeApproveSideEffects(report);
+            revokeApproveSideEffects(report);  //从封禁恢复，解除副作用
         }
         report.setStatus(STATUS_PENDING);
         report.setAdminNote(null);
@@ -129,10 +129,10 @@ public class ReportService {
         return toReportVO(report);
     }
 
-    /** 回退通过时的副作用：物品恢复寻找中，用户解封 */
+    // 回退通过时的副作用：物品恢复寻找中，用户解封
     private void revokeApproveSideEffects(Report report) {
         if (report.getReportedItem() != null) {
-            itemRepository.findById(report.getReportedItem().getId()).ifPresent(item -> {
+            itemRepository.findById(report.getReportedItem().getId()).ifPresent(item -> {  //.ifPresent(item -> { ... }) 如果查到了 item（不为 null），就执行里面的代码
                 if (item.getStatus() == 3) {
                     item.setStatus(0);
                     itemRepository.save(item);

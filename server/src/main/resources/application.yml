@@ -42,6 +42,13 @@ wechat:
   appid: wxd59d9e3110ab847e
   secret: 9ddc73fe8547ad9cf5687212ad64ff1d
 
+# 百度图像识别
+baidu:
+  ai:
+    app-id: "7604831"
+    api-key: "10zKw7zuDpdK9Q972M8fbVlH"
+    secret-key: "HJRnE2A9htymXdKib5dKFLHocNhc0ybr"
+
 # 文件上传路径
 upload:
   path: ./uploads   #文件保存位置
