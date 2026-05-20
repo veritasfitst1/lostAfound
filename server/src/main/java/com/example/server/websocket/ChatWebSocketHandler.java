@@ -81,7 +81,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                     .isRead(0)
                     .build();
             msg = messageRepository.save(msg);
-            //构建系囊萤json
+            //构建json
             var resp = Map.of(
                     "type", "message",
                     "id", msg.getId(),

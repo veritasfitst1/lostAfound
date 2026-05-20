@@ -2,12 +2,11 @@
   <view class="user-card">
     <view class="avatar-wrap" bindtap="onChangeAvatar">
       <image class="avatar" src="{{user.displayAvatarUrl || '/assets/icons/user.png'}}" mode="aspectFill"/>
-      <view class="avatar-hint">换头像</view>
     </view>
     <view class="user-info">
       <view class="nickname" bindtap="onEditNickname">{{user.nickname || '微信用户'}}</view>
       <view class="user-meta">账号：{{user.username || '未设置'}}</view>
-      <view class="user-meta">微信：{{user.openid ? '已绑定' : '未绑定'}}</view>
+      <view class="user-meta">微信：{{user.openid ? user.openid : '未绑定'}}</view>
       <view class="user-id text-gray">ID: {{user.id}}</view>
     </view>
   </view>

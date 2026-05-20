@@ -47,7 +47,7 @@
         @current-change="load"
       />
     </el-card>
-
+    <!-- 编辑弹窗 -->
     <el-dialog v-model="editVisible" title="编辑物品" width="520px" destroy-on-close @closed="resetForm">
       <el-form ref="formRef" :model="form" label-width="80px">
         <el-form-item label="标题" prop="title">
@@ -76,20 +76,21 @@ import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getItems, updateItem, updateItemStatus, deleteItem } from '../api/admin'
 
-const filterType = ref(null)
-const filterStatus = ref(null)
-const list = ref([])
-const loading = ref(false)
+const filterType = ref(null)  //下拉框类型筛选
+const filterStatus = ref(null)  //下拉框状态筛选
+const list = ref([])  //物品数据
+const loading = ref(false)  //加载
 const page = ref(1)
 const size = ref(10)
-const total = ref(0)
+const total = ref(0)  //总条数
 
-const editVisible = ref(false)
-const submitting = ref(false)
-const editingId = ref(null)
+const editVisible = ref(false)  //编辑弹窗是否显示
+const submitting = ref(false)  //保存按钮是否处于提交中状态
+const editingId = ref(null)   //当前正在编辑的物品 ID
 const formRef = ref(null)
 const form = ref({ title: '', description: '', location: '', contact: '' })
 
+//自动加载
 const load = async () => {
   loading.value = true
   try {
@@ -104,6 +105,7 @@ const load = async () => {
   }
 }
 
+//编辑键
 const openEdit = (row) => {
   editingId.value = row.id
   form.value = {
@@ -112,14 +114,16 @@ const openEdit = (row) => {
     location: row.location || '',
     contact: row.contact || ''
   }
-  editVisible.value = true
+  editVisible.value = true  //显示编辑弹窗
 }
 
+//编辑弹窗关闭执行
 const resetForm = () => {
   editingId.value = null
   form.value = { title: '', description: '', location: '', contact: '' }
 }
 
+//提交编辑
 const submitEdit = async () => {
   submitting.value = true
   try {
@@ -134,6 +138,7 @@ const submitEdit = async () => {
   }
 }
 
+//恢复键
 const restore = async (row) => {
   try {
     await ElMessageBox.confirm('确定将该物品恢复为「寻找中」状态？', '恢复')
@@ -145,6 +150,7 @@ const restore = async (row) => {
   }
 }
 
+//过期键
 const expire = async (row) => {
   try {
     await ElMessageBox.confirm('确定将该物品标记为「已过期」？', '过期')
@@ -156,6 +162,7 @@ const expire = async (row) => {
   }
 }
 
+//删除键
 const del = async (row) => {
   try {
     await ElMessageBox.confirm('确定删除该物品？', '提示')

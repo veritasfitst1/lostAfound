@@ -52,9 +52,10 @@ const stats = ref({
 const pieRef = ref(null)
 const lineRef = ref(null)
 
+//加载数据
 const loadStats = async () => {
-  const res = await getStats()
-  stats.value = res.data
+  const res = await getStats() //调用接口获取统计数据
+  stats.value = res.data   //把接口返回的数据整体赋值给响应式对象 stats
   initPie()
   initLine()
 }
@@ -83,7 +84,7 @@ const initLine = () => {
   })
 }
 
-onMounted(loadStats)
+onMounted(loadStats) //组件挂载后执行
 </script>
 
 <style scoped>

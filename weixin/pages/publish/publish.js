@@ -1,10 +1,13 @@
 Page({
+  //跳到“发布失物”页面
   toPublishLost() {
     wx.navigateTo({ url: '/pages/publish-item/publish-item?type=0' })
   },
+  ////跳到“发布招领”页面
   toPublishFound() {
     wx.navigateTo({ url: '/pages/publish-item/publish-item?type=1' })
   },
+  //撤销消息
   toRevoke() {
     wx.showActionSheet({
       itemList: ['撤销失物信息', '撤销招领信息'],

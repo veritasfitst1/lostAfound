@@ -1,5 +1,6 @@
 <view class="container" wx:if="{{item}}">
   <view class="detail-card">
+    <!-- 循环显示每张图片 -->
     <swiper class="swiper" indicator-dots="{{item.images && item.images.length > 1}}">
       <swiper-item wx:for="{{item.images || []}}" wx:key="*this">
         <image src="{{item}}" mode="aspectFill"/>
@@ -23,7 +24,7 @@
           <view>{{item.userNickname}}</view>
         </view>
         <view class="pub-actions">
-          <view class="btn-contact" bindtap="toChat">联系TA</view>
+          <view class="btn-contact {{isOwnItem ? 'btn-contact-disabled' : ''}}" hover-class="{{isOwnItem ? 'none' : ''}}" bindtap="toChat">联系TA</view>
           <view class="btn-report" bindtap="onReport">举报</view>
         </view>
       </view>

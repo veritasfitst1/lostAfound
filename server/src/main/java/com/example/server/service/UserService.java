@@ -28,7 +28,7 @@ public class UserService {
     //更新个人资料
     @Transactional
     public UserVO updateProfile(Long userId, String nickname, String avatarUrl, String phone,
-                                String username, String password) {
+                                String username, String password, String oldPassword) {
         User user = findById(userId);
         if (nickname != null && !nickname.isBlank()) {
             user.setNickname(nickname.trim());
@@ -52,6 +52,15 @@ public class UserService {
             user.setUsername(u);
         }
         if (password != null && !password.isBlank()) {
+            if (oldPassword == null || oldPassword.isBlank()) {
+                throw new BusinessException(400, "请输入原密码");
+            }
+            if (user.getPassword() == null || user.getPassword().isBlank()) {
+                throw new BusinessException(400, "当前账号未设置登录密码，无法修改");
+            }
+            if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+                throw new BusinessException(400, "原密码错误");
+            }
             if (password.length() < 6 || password.length() > 32) {
                 throw new BusinessException(400, "密码长度须为 6-32 位");
             }

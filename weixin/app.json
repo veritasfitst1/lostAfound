@@ -10,9 +10,10 @@
     "pages/my-found/my-found",
     "pages/chat/chat",
     "pages/login/login",
+    "pages/change-password/change-password",
     "pages/image-search/image-search"
   ],
-  "window": {
+  "window": {    
     "navigationBarTextStyle": "white",
     "navigationBarTitleText": "校园失物招领",
     "navigationBarBackgroundColor": "#1989fa",

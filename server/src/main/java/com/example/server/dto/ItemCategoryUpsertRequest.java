@@ -12,9 +12,6 @@ public class ItemCategoryUpsertRequest {
     @Size(max = 32, message = "分类名称最多32个字符")
     private String name;
 
-    @Size(max = 64, message = "图标标识最多64个字符")
-    private String icon;
-
     @NotNull(message = "排序不能为空")
     private Integer sortOrder;
 }

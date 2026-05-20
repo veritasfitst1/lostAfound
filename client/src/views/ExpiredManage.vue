@@ -6,7 +6,7 @@
         <p class="desc">将超过指定天数仍未找回的物品标记为已过期。</p>
         <el-form inline class="expired-form">
           <el-form-item label="天数">
-            <el-input-number v-model="days" :min="7" :max="365" />
+            <el-input-number v-model="days" :min="1" :max="365" />
           </el-form-item>
           <el-form-item>
             <el-button type="primary" :loading="loading" @click="handleExpire">批量标记过期</el-button>
@@ -42,17 +42,19 @@ import { ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { expireItems } from '../api/admin'
 
-const days = ref(30)
-const loading = ref(false)
-const result = ref([])
-const processed = ref(false)
+const days = ref(30)   //输入框绑定的天数
+const loading = ref(false) 
+const result = ref([])  //批量处理的过期数据
+const processed = ref(false)  //是否已经执行过一次处理操作
 
+//格式化时间（传入形参v）
 const formatTime = (v) => {
   if (v == null) return '—'
   if (typeof v === 'string') return v.replace('T', ' ').slice(0, 19)
   return String(v)
 }
 
+//批量标记过期
 const handleExpire = async () => {
   await ElMessageBox.confirm(`确定将超过 ${days.value} 天未找回的物品标记为已过期？`, '提示')
   loading.value = true

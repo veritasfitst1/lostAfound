@@ -1,5 +1,5 @@
 import request from '../utils/request'
-
+//各种后端接口  管理员
 export const getStats = () => request.get('/api/admin/stats')
 export const getUsers = (params) => request.get('/api/admin/users', { params })
 export const toggleBan = (id) => request.put(`/api/admin/users/${id}/ban`)

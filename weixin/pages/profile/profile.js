@@ -1,7 +1,7 @@
 const { get, post, put } = require('../../utils/request')
 const { getUserInfo, logout } = require('../../utils/auth')
 const { API_BASE, resolveImageUrl } = require('../../utils/config')
-
+//展示用户信息，同时整理成更适合页面显示的格式
 function displayUser(raw) {
   if (!raw) return null
   return Object.assign({}, raw, {
@@ -12,9 +12,9 @@ function displayUser(raw) {
 Page({
   data: {
     user: null,
-    unreadCount: 0
+    unreadCount: 0   //未读信息数目
   },
-
+//加载时执行
   onShow() {
     this.setData({ user: displayUser(getUserInfo()) })
     const u = getUserInfo()
@@ -24,13 +24,13 @@ Page({
       }).catch(() => {})
     }
   },
-
+//修改头像
   onChangeAvatar() {
     wx.chooseMedia({
       count: 1,
-      mediaType: ['image'],
+      mediaType: ['image'],   //只允许选图片
       success: (res) => {
-        const file = res.tempFiles[0]
+        const file = res.tempFiles[0]  
         wx.showLoading({ title: '上传中' })
         const token = wx.getStorageSync('token')
         wx.uploadFile({
@@ -57,7 +57,7 @@ Page({
       }
     })
   },
-
+//绑定微信
   bindWeChat() {
     wx.showLoading({ title: '绑定中' })
     wx.login({
@@ -66,7 +66,7 @@ Page({
           wx.hideLoading()
           return wx.showToast({ title: '获取登录凭证失败', icon: 'none' })
         }
-        post('/api/users/bind-wx', { code: r.code })
+        post('/api/users/bind-wx', { code: r.code }) //给后端code  产生openid绑定用户
           .then(res => {
             wx.hideLoading()
             wx.setStorageSync('userInfo', res.data)
@@ -84,13 +84,15 @@ Page({
       }
     })
   },
-
+//我的失物
   toMyLost() {
     wx.navigateTo({ url: '/pages/my-lost/my-lost' })
   },
+  //我的招领
   toMyFound() {
     wx.navigateTo({ url: '/pages/my-found/my-found' })
   },
+//登出
   onLogout() {
     wx.showModal({
       title: '提示',
@@ -131,19 +133,7 @@ Page({
     })
   },
   onEditPassword() {
-    wx.showModal({
-      title: '修改密码',
-      editable: true,
-      placeholderText: '新密码（6-32位）',
-      success: (res) => {
-        if (!res.confirm || !res.content) return
-        const p = res.content
-        if (p.length < 6 || p.length > 32) {
-          return wx.showToast({ title: '密码须为6-32位', icon: 'none' })
-        }
-        this.updateProfile({ password: p })
-      }
-    })
+    wx.navigateTo({ url: '/pages/change-password/change-password' })
   },
   updateProfile(data) {
     put('/api/users/me', data).then(res => {

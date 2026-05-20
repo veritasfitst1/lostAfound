@@ -1,11 +1,11 @@
 const { API_BASE } = require('./config')
-
+//请求函数
 function request(options) {
   const token = wx.getStorageSync('token')
   return new Promise((resolve, reject) => {
-    wx.request({
+    wx.request({  //微信小程序提供的接口
       ...options,
-      url: (options.url.startsWith('http') ? '' : API_BASE) + options.url,
+      url: (options.url.startsWith('http') ? '' : API_BASE) + options.url,   //已经完整直接用，不然就拼接
       header: {
         'Content-Type': 'application/json',
         ...(token ? { Authorization: 'Bearer ' + token } : {}),

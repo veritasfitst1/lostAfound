@@ -42,11 +42,12 @@ import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getReports, approveReport, rejectReport, revokeReport } from '../api/admin'
 
-const list = ref([])
+const list = ref([])    //举报列表数据
 const loading = ref(false)
 /** 默认只看待审核：通过后刷新即从列表消失；可切「全部记录」看历史 */
-const listMode = ref('pending')
+const listMode = ref('pending')  
 
+//加载
 const load = async () => {
   loading.value = true
   try {
@@ -59,6 +60,7 @@ const load = async () => {
   }
 }
 
+//通过键
 const approve = async (row) => {
   try {
     const { value } = await ElMessageBox.prompt('请输入备注（可选）', '审核通过', {
@@ -75,6 +77,7 @@ const approve = async (row) => {
   }
 }
 
+//驳回键
 const reject = async (row) => {
   try {
     const { value } = await ElMessageBox.prompt('请输入驳回理由（可选）', '驳回', {
@@ -91,6 +94,7 @@ const reject = async (row) => {
   }
 }
 
+//撤销键
 const revoke = async (row) => {
   try {
     await ElMessageBox.confirm('确定撤销该举报？将回退通过时的处罚操作。', '撤销举报')
@@ -108,9 +112,9 @@ onMounted(load)
 <style scoped>
 .card-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
+  align-items: center;  
+  justify-content: space-between;  /*左右两端对齐*/
+  flex-wrap: wrap; /*允许换行*/
+  gap: 12px; 
 }
 </style>

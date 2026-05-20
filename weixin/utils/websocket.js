@@ -1,11 +1,11 @@
 const { WS_BASE } = require('./config')
 
-let ws = null
-let onMessageCb = null
-
-function connectChat(token, onMessage, onOpen, onClose) {
-  if (onMessage) onMessageCb = onMessage
-  if (ws && ws.readyState === 1) {
+let ws = null   //连接对象
+let onMessageCb = null     //存储“收到消息时要做什么”
+//建立聊天连接
+function connectChat(token, onMessage, onOpen, onClose) {  //传入onMessage
+  if (onMessage) onMessageCb = onMessage  //没收到消息就null
+  if (ws && ws.readyState === 1) { //已经连接了
     onOpen && onOpen()
     return ws
   }
@@ -14,13 +14,15 @@ function connectChat(token, onMessage, onOpen, onClose) {
     url,
     success: () => {}
   })
+  //连接成功
   ws.onOpen(() => {
     onOpen && onOpen()
   })
+  //收到消息
   ws.onMessage((e) => {
     try {
       const data = JSON.parse(e.data)
-      ;(onMessage || onMessageCb) && (onMessage || onMessageCb)(data)
+      ;(onMessage || onMessageCb) && (onMessage || onMessageCb)(data)  //优先用传的 onMessage，否则用 onMessageCb
     } catch (err) {}
   })
   ws.onClose(() => {
@@ -33,7 +35,7 @@ function connectChat(token, onMessage, onOpen, onClose) {
 }
 
 function sendMessage(data) {
-  if (ws && ws.readyState === 1) {
+  if (ws && ws.readyState === 1) { //连上才发
     ws.send({ data: JSON.stringify(data) })
   }
 }

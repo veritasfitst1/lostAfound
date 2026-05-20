@@ -52,11 +52,12 @@ import { ElMessage } from 'element-plus'
 import { adminLogin } from '../api/auth'
 import { useUserStore } from '../stores/user'
 
-const router = useRouter()
-const userStore = useUserStore()
+const router = useRouter()  //后面登录成功后用它跳转
+const userStore = useUserStore() //保存用户
 const loading = ref(false)
 const form = reactive({ username: '', password: '' })
 
+//登录
 const handleLogin = async () => {
   if (!form.username || !form.password) {
     ElMessage.warning('请输入用户名和密码')
@@ -65,9 +66,9 @@ const handleLogin = async () => {
   loading.value = true
   try {
     const res = await adminLogin(form)
-    userStore.setAuth(res.data)
+    userStore.setAuth(res.data)  //把接口返回的数据保存到全局用户状态中
     ElMessage.success('登录成功')
-    router.push('/')
+    router.push('/') //登录成功后跳转到后台首页
   } catch (e) {
     ElMessage.error(e || '登录失败')
   } finally {

@@ -8,8 +8,6 @@ import com.example.server.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
 import java.util.List;
 
 @Service
@@ -30,7 +28,6 @@ public class ItemCategoryService {
     public ItemCategory create(ItemCategoryUpsertRequest req) {
         ItemCategory c = ItemCategory.builder()
                 .name(req.getName().trim())
-                .icon(StringUtils.hasText(req.getIcon()) ? req.getIcon().trim() : null)
                 .sortOrder(req.getSortOrder())
                 .build();
         return categoryRepository.save(c);
@@ -42,7 +39,6 @@ public class ItemCategoryService {
         ItemCategory c = categoryRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(404, "分类不存在"));
         c.setName(req.getName().trim());
-        c.setIcon(StringUtils.hasText(req.getIcon()) ? req.getIcon().trim() : null);
         c.setSortOrder(req.getSortOrder());
         return categoryRepository.save(c);
     }

@@ -12,4 +12,6 @@ public class UserUpdateRequest {
     private String username;
     /** 新密码（非空时更新） */
     private String password;
+    /** 修改密码时必填，用于校验原密码 */
+    private String oldPassword;
 }

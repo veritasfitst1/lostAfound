@@ -22,16 +22,17 @@
       <view class="filter-item {{type === 1 ? 'active' : ''}}" bindtap="onFilterType" data-type="1">招领</view>
       <view class="filter-item" bindtap="toggleFilter">分类{{categoryId ? '✓' : ''}}</view>
     </view>
+    <!-- 分类栏 -->
     <view class="filter-cats" wx:if="{{showFilter}}">
       <view class="cat-item {{!categoryId ? 'active' : ''}}" bindtap="onFilterCategory" data-id="">全部分类</view>
       <view class="cat-item {{categoryId === item.id ? 'active' : ''}}" wx:for="{{categories}}" wx:key="id" data-id="{{item.id}}" bindtap="onFilterCategory">{{item.name}}</view>
     </view>
   </view>
-
+  <!-- 物品列表区域 -->
   <scroll-view scroll-y class="item-list" bindscrolltolower="onReachBottom" scroll-into-view="{{scrollIntoView}}">
     <view id="result-top"></view>
     <view class="item-card" wx:for="{{items}}" wx:key="id" data-id="{{item.id}}" bindtap="toDetail">
-      <image class="item-img" src="{{item.images && item.images[0] ? item.images[0] : '/assets/icons/home.png'}}" mode="aspectFill"/>
+      <image class="item-img" src="{{item.images && item.images[0] ? item.images[0] : '/assets/icons/nopicture.png'}}" mode="aspectFill"/>
       <view class="item-info">
         <view class="item-title">{{item.title}}</view>
         <view class="item-meta text-muted">{{item.categoryName}} · {{item.location || '未知'}}</view>

@@ -5,22 +5,22 @@ Page({
   data: {
     items: []
   },
-
+//加载时调用
   onShow() {
     this.loadItems()
   },
-
+//获取物品列表
   loadItems() {
     get('/api/items/my/lost').then(res => {
       this.setData({ items: (res.data || []).map(resolveItemImages) })
     }).catch(() => this.setData({ items: [] }))
   },
-
+//点击卡片，进入详情页
   toDetail(e) {
     const id = e.currentTarget.dataset.id
     wx.navigateTo({ url: `/pages/item-detail/item-detail?id=${id}` })
   },
-
+//取消撤销
   onUndo(e) {
     const id = e.currentTarget.dataset.id
     wx.showModal({
@@ -36,7 +36,7 @@ Page({
       }
     })
   },
-
+//已找回
   onFound(e) {
     const id = e.currentTarget.dataset.id
     wx.showModal({
@@ -52,7 +52,7 @@ Page({
       }
     })
   },
-
+//撤销
   onRevoke(e) {
     const id = e.currentTarget.dataset.id
     wx.showModal({

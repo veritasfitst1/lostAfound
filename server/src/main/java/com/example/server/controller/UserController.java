@@ -25,7 +25,7 @@ public class UserController {
     @PutMapping("/me")
     public CommonResponse<UserVO> updateProfile(@RequestAttribute Long userId, @RequestBody UserUpdateRequest req) {
         return CommonResponse.ok(userService.updateProfile(userId, req.getNickname(), req.getAvatarUrl(), req.getPhone(),
-                req.getUsername(), req.getPassword()));
+                req.getUsername(), req.getPassword(), req.getOldPassword()));
     }
 
     //绑定微信

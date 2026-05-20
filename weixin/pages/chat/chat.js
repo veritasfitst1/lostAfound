@@ -5,13 +5,13 @@ const { resolveImageUrl } = require('../../utils/config')
 
 Page({
   data: {
-    myUserId: null,
-    otherUserId: null,
-    messages: [],
+    myUserId: null,   
+    otherUserId: null,    
+    messages: [],  
     inputContent: '',
     myAvatarUrl: '/assets/icons/user.png'
   },
-
+//加载时自动调用
   onLoad(opt) {
     const myUser = getUserInfo() || {}
     const myUserId = myUser.id
@@ -23,11 +23,11 @@ Page({
     })
     this.loadHistory()
   },
-
+//离开页面执行
   onUnload() {
-    closeChat()
+    closeChat()   //关闭websocket连接
   },
-
+//加载历史聊天记录
   loadHistory() {
     get(`/api/messages/conversation/${this.data.otherUserId}`).then(res => {
       const msgs = (res.data || []).map(this.decorateMessage.bind(this))
@@ -35,18 +35,18 @@ Page({
       this.connectWs()
     }).catch(() => this.connectWs())
   },
-
+//建立实时聊天连接
   connectWs() {
     const token = wx.getStorageSync('token')
     if (!token) return
-    connectChat(token, (data) => {
+    connectChat(token, (data) => {   //websocket连接不断开会一直在，有数据触发
       if (data.type === 'message' && (data.senderId === this.data.otherUserId || data.receiverId === this.data.otherUserId)) {
-        const prev = this.data.messages
-        this.setData({ messages: [...prev, this.decorateMessage(data)] })
+        const prev = this.data.messages  
+        this.setData({ messages: [...prev, this.decorateMessage(data)] })  //取出旧消息，追加新消息
       }
     })
   },
-
+//加工每一条消息，显示发送者头像
   decorateMessage(msg) {
     const senderAvatar = msg.senderAvatarUrl ? resolveImageUrl(msg.senderAvatarUrl) : '/assets/icons/user.png'
     return {
@@ -54,7 +54,7 @@ Page({
       avatarUrl: msg.senderId === this.data.myUserId ? this.data.myAvatarUrl : senderAvatar
     }
   },
-
+//头像没有就显示默认
   onAvatarError(e) {
     const idx = e.currentTarget.dataset.idx
     const messages = [...this.data.messages]
@@ -62,11 +62,11 @@ Page({
     messages[idx].avatarUrl = '/assets/icons/user.png'
     this.setData({ messages })
   },
-
+//输入消息
   onInput(e) {
     this.setData({ inputContent: e.detail.value })
   },
-
+//发送
   send() {
     const content = this.data.inputContent.trim()
     if (!content) return
