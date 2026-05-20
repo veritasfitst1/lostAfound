@@ -40,7 +40,7 @@ jwt:
 # 微信小程序
 wechat:
   appid: wxd59d9e3110ab847e
-  secret: 9ddc73fe8547ad9cf5687212ad64ff1d
+  secret: 
 
 # 百度图像识别
 baidu:
